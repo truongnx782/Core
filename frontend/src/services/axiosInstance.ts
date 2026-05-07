@@ -3,7 +3,9 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { store } from '../store';
 import { refreshTokenSuccess, logoutAction } from '../features/auth/authSlice';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.MODE === 'development'
+  ? 'http://localhost:8080/api'
+  : '/api';
 
 /**
  * Configured Axios instance with:
