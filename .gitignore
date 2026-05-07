@@ -1,0 +1,69 @@
+# Node / frontend
+/node_modules
+/dist
+/build
+/.pnp
+.pnp.js
+.vite
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.DS_Store
+.env
+.env.*
+
+# Vite cache
+node_modules/.vite
+
+# Log files
+logs
+*.log
+lerna-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Backend / Java / Maven
+/target
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+*.class
+.release
+.settings/
+.project
+.classpath
+.factorypath
+
+# Spring Boot
+spring.log
+
+# OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Docker
+docker-compose.override.yml
+
+# Other
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

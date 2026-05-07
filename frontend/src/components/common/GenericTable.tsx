@@ -1,0 +1,44 @@
+import { Table, Empty } from 'antd';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+
+interface GenericTableProps<T> {
+  columns: ColumnsType<T>;
+  dataSource: T[];
+  loading?: boolean;
+  rowKey: string | ((record: T) => string);
+  pagination?: TablePaginationConfig | false;
+  onChange?: (pagination: TablePaginationConfig) => void;
+  scroll?: { x?: number | string; y?: number | string };
+}
+
+/**
+ * Generic reusable table component wrapping Ant Design Table.
+ * Provides consistent styling, loading states, and empty placeholders.
+ */
+function GenericTable<T extends object>({
+  columns,
+  dataSource,
+  loading = false,
+  rowKey,
+  pagination = false,
+  onChange,
+  scroll,
+}: GenericTableProps<T>) {
+  return (
+    <Table<T>
+      columns={columns}
+      dataSource={dataSource}
+      loading={loading}
+      rowKey={rowKey}
+      pagination={pagination}
+      onChange={(_pagination) => onChange?.(_pagination)}
+      scroll={scroll || { x: 'max-content' }}
+      locale={{
+        emptyText: <Empty description="No data found" />,
+      }}
+      style={{ borderRadius: 12, overflow: 'hidden' }}
+    />
+  );
+}
+
+export default GenericTable;

@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ---- CSS Reset & Base ---- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  background: #f0f2f5;
+  color: #262626;
+  line-height: 1.6;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bfbfbf;
+}
+
+/* ---- Ant Design Overrides ---- */
+.ant-layout-sider-trigger {
+  display: none !important;
+}
+
+.ant-table-thead > tr > th {
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 12px !important;
+  letter-spacing: 0.5px;
+}
+
+.ant-card {
+  transition: box-shadow 0.2s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.ant-btn {
+  transition: all 0.2s ease;
+}
+
+.ant-tag {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* ---- Animations ---- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ant-card,
+.ant-table-wrapper {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ---- Selection ---- */
+::selection {
+  background: #1677ff;
+  color: #fff;
+}
