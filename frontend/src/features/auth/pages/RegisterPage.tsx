@@ -1,21 +1,26 @@
 import React from 'react';
 import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd';
-import { LockOutlined, MailOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
-import { Navigate, Link } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
-const LoginPage: React.FC = () => {
-  const { login, loading, error, isAuthenticated, clearError } = useAuth();
+const RegisterPage: React.FC = () => {
+  const { register, loading, error, isAuthenticated, clearError } = useAuth();
   const [form] = Form.useForm();
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const handleSubmit = (values: { email: string; password: string }) => {
-    login(values.email, values.password);
+  const handleSubmit = (values: {
+    username: string;
+    email: string;
+    password: string;
+    fullName?: string;
+  }) => {
+    register(values.username, values.email, values.password, values.fullName);
   };
 
   return (
@@ -25,27 +30,26 @@ const LoginPage: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
         padding: 24,
       }}
     >
       <Card
         style={{
-          width: 440,
+          width: 460,
           borderRadius: 16,
           boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
           border: 'none',
         }}
         bodyStyle={{ padding: '48px 40px' }}
       >
-        {/* Logo & Title */}
         <Space direction="vertical" size={4} style={{ width: '100%', marginBottom: 32, textAlign: 'center' }}>
           <div
             style={{
               width: 56,
               height: 56,
               borderRadius: 14,
-              background: 'linear-gradient(135deg, #1677ff, #4096ff)',
+              background: 'linear-gradient(135deg, #22c55e, #16a34a)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -53,18 +57,17 @@ const LoginPage: React.FC = () => {
               fontSize: 24,
               fontWeight: 800,
               margin: '0 auto 16px',
-              boxShadow: '0 8px 24px rgba(22,119,255,0.3)',
+              boxShadow: '0 8px 24px rgba(34,197,94,0.3)',
             }}
           >
             C
           </div>
           <Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-            Welcome Back
+            Create Your Account
           </Title>
-          <Text type="secondary">Sign in to CoreAdmin Dashboard</Text>
+          <Text type="secondary">Register and get started with CoreAdmin</Text>
         </Space>
 
-        {/* Error Alert */}
         {error && (
           <Alert
             message={error}
@@ -76,14 +79,29 @@ const LoginPage: React.FC = () => {
           />
         )}
 
-        {/* Login Form */}
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          autoComplete="off"
-          size="large"
-        >
+        <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off" size="large">
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: 'Please enter a username' }]}
+          >
+            <Input
+              prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+              placeholder="Username"
+              style={{ borderRadius: 10, height: 48 }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="fullName"
+            rules={[]}
+          >
+            <Input
+              prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+              placeholder="Full name (optional)"
+              style={{ borderRadius: 10, height: 48 }}
+            />
+          </Form.Item>
+
           <Form.Item
             name="email"
             rules={[
@@ -123,21 +141,18 @@ const LoginPage: React.FC = () => {
                 borderRadius: 10,
                 fontWeight: 600,
                 fontSize: 16,
-                background: 'linear-gradient(135deg, #1677ff, #4096ff)',
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
                 border: 'none',
-                boxShadow: '0 4px 16px rgba(22,119,255,0.3)',
+                boxShadow: '0 4px 16px rgba(34,197,94,0.3)',
               }}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Creating account...' : 'Register'}
             </Button>
           </Form.Item>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ textAlign: 'center' }}>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Demo: <strong>admin@core.com</strong> / <strong>Admin@123</strong>
-            </Text>
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              Don't have an account? <Link to="/register">Register</Link>
+              Already have an account? <Link to="/login">Sign in</Link>
             </Text>
           </div>
         </Form>
@@ -146,4 +161,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

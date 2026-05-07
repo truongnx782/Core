@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import LoginPage from '../features/auth/pages/LoginPage';
+import RegisterPage from '../features/auth/pages/RegisterPage';
 import DashboardPage from '../features/dashboard/DashboardPage';
 import UserManagementPage from '../features/users/pages/UserManagementPage';
 
@@ -11,6 +12,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>
