@@ -5,14 +5,14 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: core_db
-      POSTGRES_USER: core_user
-      POSTGRES_PASSWORD: core_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U core_user -d core_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d core_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,8 +30,8 @@ services:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/core_db
-      SPRING_DATASOURCE_USERNAME: core_user
-      SPRING_DATASOURCE_PASSWORD: core_password
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SPRING_PROFILES_ACTIVE: prod
