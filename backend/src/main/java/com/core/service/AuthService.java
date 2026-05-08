@@ -10,7 +10,7 @@ public interface AuthService {
 
     AuthResponse register(RegisterRequest request);
 
-    AuthResponse refreshToken(String refreshTokenValue);
+    AuthResponse refreshToken(String refreshTokenValue, boolean shouldRotat);
 
     void logout(String refreshTokenValue);
 

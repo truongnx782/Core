@@ -86,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse refreshToken(String refreshTokenValue) {
+    public AuthResponse refreshToken(String refreshTokenValue, boolean shouldRotate) {
         RefreshToken refreshToken = refreshTokenRepository
                 .findByTokenAndRevokedFalse(refreshTokenValue)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.REFRESH_TOKEN_NOT_FOUND.getMessage()));
@@ -97,15 +97,19 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException(ErrorCode.REFRESH_TOKEN_EXPIRED.getMessage());
         }
 
-        // Rotate: revoke old, create new
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
+        if (!shouldRotate) {
+            refreshToken.setRevoked(true);
+            refreshTokenRepository.save(refreshToken);
+
+            log.info("Token rotated for user: {}", refreshToken.getUser().getEmail());
+        } else {
+            log.info("Simply issuing new Access Token for user: {}", refreshToken.getUser().getEmail());
+        }
 
         User user = refreshToken.getUser();
         UserPrincipal principal = UserPrincipal.create(user);
         String newAccessToken = jwtTokenProvider.generateAccessToken(principal);
 
-        log.info("Token refreshed for user: {}", user.getEmail());
         return AuthResponse.of(newAccessToken, userMapper.toResponse(user));
     }
 

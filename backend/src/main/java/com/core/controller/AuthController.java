@@ -70,11 +70,11 @@ public class AuthController {
                     .body(BaseResponse.error("Refresh token not found"));
         }
 
-        AuthResponse authResponse = authService.refreshToken(refreshTokenValue);
+        AuthResponse authResponse = authService.refreshToken(refreshTokenValue, true);
 
         // Rotate: issue new refresh token cookie
-        String newRefreshToken = authService.createRefreshToken(authResponse.getUser().getId());
-        addRefreshTokenCookie(response, newRefreshToken);
+//        String newRefreshToken = authService.createRefreshToken(authResponse.getUser().getId());
+//        addRefreshTokenCookie(response, newRefreshToken);
 
         return ResponseEntity.ok(BaseResponse.success("Token refreshed", authResponse));
     }
