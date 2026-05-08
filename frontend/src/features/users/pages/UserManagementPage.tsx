@@ -83,6 +83,19 @@ const UserManagementPage: React.FC = () => {
     dispatch(setKeyword(debouncedSearch));
   }, [debouncedSearch, dispatch]);
 
+  // Fill form values when editing
+  useEffect(() => {
+    if (isModalOpen && isEditMode && selectedUser) {
+      form.setFieldsValue({
+        username: selectedUser.username,
+        email: selectedUser.email,
+        fullName: selectedUser.fullName,
+        phone: selectedUser.phone,
+        role: selectedUser.role,
+      });
+    }
+  }, [isModalOpen, isEditMode, selectedUser, form]);
+
   // ---- Modal Handlers ----
   const openCreateModal = () => {
     setIsEditMode(false);
@@ -94,13 +107,6 @@ const UserManagementPage: React.FC = () => {
   const openEditModal = (user: UserInfo) => {
     setIsEditMode(true);
     dispatch(setSelectedUser(user));
-    form.setFieldsValue({
-      username: user.username,
-      email: user.email,
-      fullName: user.fullName,
-      phone: user.phone,
-      role: user.role,
-    });
     setIsModalOpen(true);
   };
 

@@ -13,8 +13,8 @@ const AppModal: React.FC<AppModalProps> = ({ children, ...rest }) => {
   return (
     <Modal
       centered
-      destroyOnClose
-      maskClosable={false}
+      destroyOnHidden
+      mask={{ closable: false }}
       {...rest}
     >
       {children}
