@@ -7,6 +7,7 @@ import {
   SettingOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  BookOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -17,6 +18,11 @@ const menuItems = [
     key: '/dashboard',
     icon: <DashboardOutlined />,
     label: 'Dashboard',
+  },
+  {
+    key: '/dashboard/exams',
+    icon: <BookOutlined />,
+    label: 'Exam Management',
   },
   {
     key: '/dashboard/users',

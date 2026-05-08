@@ -2,6 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import authReducer from '../features/auth/authSlice';
 import userReducer from '../features/users/userSlice';
+import examReducer from '../features/exam/examSlice';
+import questionReducer from '../features/exam/questionSlice';
 import rootSaga from './rootSaga';
 
 const sagaMiddleware = createSagaMiddleware();
@@ -10,9 +12,11 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     users: userReducer,
+    exam: examReducer,
+    question: questionReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ thunk: false, serializableCheck: false }).concat(sagaMiddleware),
+    getDefaultMiddleware({ serializableCheck: false }).concat(sagaMiddleware),
 });
 
 sagaMiddleware.run(rootSaga);

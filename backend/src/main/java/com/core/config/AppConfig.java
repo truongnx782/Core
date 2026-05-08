@@ -48,7 +48,7 @@ public class AppConfig {
                         .email("user@core.com")
                         .password(passwordEncoder.encode("User@123"))
                         .fullName("Regular User")
-                        .role(Role.ROLE_USER)
+                        .role(Role.ROLE_STUDENT)
                         .active(true)
                         .build();
                 userRepository.save(user);

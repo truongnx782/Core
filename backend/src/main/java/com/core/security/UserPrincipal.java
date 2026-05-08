@@ -24,6 +24,7 @@ public class UserPrincipal implements UserDetails {
     private final String password;
     private final boolean active;
     private final Collection<? extends GrantedAuthority> authorities;
+    private final User user;
 
     /**
      * Factory method to create UserPrincipal from a User entity.
@@ -38,7 +39,8 @@ public class UserPrincipal implements UserDetails {
                 user.getEmail(),
                 user.getPassword(),
                 user.isActive(),
-                authorities
+                authorities,
+                user
         );
     }
 

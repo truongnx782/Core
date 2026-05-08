@@ -21,6 +21,9 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXISTS("USER_003", "Username already exists"),
     INVALID_ROLE("USER_004", "Invalid role specified"),
 
+    // Exam errors
+    EXAM_NOT_FOUND("EXAM_001", "Exam not found"),
+
     // General errors
     VALIDATION_ERROR("GEN_001", "Validation error"),
     ACCESS_DENIED("GEN_002", "Access denied"),
