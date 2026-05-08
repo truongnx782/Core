@@ -8,6 +8,7 @@ import { useLocation, Link } from 'react-router-dom';
  */
 const routeLabels: Record<string, string> = {
   dashboard: 'Dashboard',
+  exams: 'Examinations',
   users: 'User Management',
   profile: 'Profile',
   settings: 'Settings',

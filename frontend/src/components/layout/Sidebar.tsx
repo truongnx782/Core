@@ -1,44 +1,65 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Layout, Menu } from 'antd';
 import {
   DashboardOutlined,
   UserOutlined,
   TeamOutlined,
   SettingOutlined,
+  FileTextOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import type { RootState } from '../../store';
 
 const { Sider } = Layout;
 
-const menuItems = [
-  {
-    key: '/dashboard',
-    icon: <DashboardOutlined />,
-    label: 'Dashboard',
-  },
-  {
-    key: '/dashboard/users',
-    icon: <TeamOutlined />,
-    label: 'User Management',
-  },
-  {
-    key: '/dashboard/profile',
-    icon: <UserOutlined />,
-    label: 'Profile',
-  },
-  {
-    key: '/dashboard/settings',
-    icon: <SettingOutlined />,
-    label: 'Settings',
-  },
-];
+const menuItems = (role?: string) => {
+  if (role === 'STUDENT') {
+    return [
+      {
+        key: '/dashboard/exams',
+        icon: <FileTextOutlined />,
+        label: 'Examinations',
+      },
+    ];
+  }
+
+  return [
+    {
+      key: '/dashboard',
+      icon: <DashboardOutlined />,
+      label: 'Dashboard',
+    },
+    {
+      key: '/dashboard/exams',
+      icon: <FileTextOutlined />,
+      label: 'Examinations',
+    },
+    {
+      key: '/dashboard/users',
+      icon: <TeamOutlined />,
+      label: 'User Management',
+    },
+    {
+      key: '/dashboard/profile',
+      icon: <UserOutlined />,
+      label: 'Profile',
+    },
+    {
+      key: '/dashboard/settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+    },
+  ];
+};
 
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
   return (
     <Sider
@@ -121,7 +142,7 @@ const Sidebar: React.FC = () => {
         theme="dark"
         mode="inline"
         selectedKeys={[location.pathname]}
-        items={menuItems}
+        items={menuItems(userRole)}
         onClick={({ key }) => navigate(key)}
         style={{
           background: 'transparent',

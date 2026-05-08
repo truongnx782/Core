@@ -56,6 +56,21 @@ public class SecurityConfig {
                         // User management — restricted to ADMIN and MANAGER
                         .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER")
 
+                        // Exam management (ADMIN/MANAGER) and student exam flow (authenticated)
+                        .requestMatchers(HttpMethod.POST, "/api/exams").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/api/exams/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/exams/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/api/exams").hasAnyRole("ADMIN", "MANAGER")
+                        // Student entry points
+                        .requestMatchers(HttpMethod.GET, "/api/exams/available").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/exams/*/start").authenticated()
+
+                        // Question management (ADMIN/MANAGER)
+                        .requestMatchers("/api/questions/**").hasAnyRole("ADMIN", "MANAGER")
+
+                        // Submissions (students)
+                        .requestMatchers("/api/submissions/**").authenticated()
+
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
