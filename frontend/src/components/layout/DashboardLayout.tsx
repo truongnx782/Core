@@ -14,18 +14,19 @@ const DashboardLayout: React.FC = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sidebar />
-      <Layout style={{ marginLeft: 260, transition: 'margin-left 0.2s' }}>
+      <Layout style={{ marginLeft: 260, transition: 'margin-left 0.2s', background: '#f0f2f5' }}>
         <AppHeader />
         <Content
           style={{
-            margin: 24,
+            margin: '24px 16px',
             padding: 24,
-            background: '#f5f5f5',
-            borderRadius: 12,
-            minHeight: 'calc(100vh - 112px)',
+            minHeight: 280,
+            borderRadius: 16,
           }}
         >
-          <Breadcrumbs />
+          <div style={{ marginBottom: 16 }}>
+            <Breadcrumbs />
+          </div>
           <Outlet />
         </Content>
       </Layout>

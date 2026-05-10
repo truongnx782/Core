@@ -33,41 +33,44 @@ const AppHeader: React.FC = () => {
   return (
     <Header
       style={{
-        padding: '0 32px',
+        padding: '0 24px',
         background: '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+        boxShadow: '0 1px 4px rgba(0,21,41,0.08)',
         position: 'sticky',
         top: 0,
         zIndex: 99,
-        gap: 16,
+        height: 64,
       }}
     >
-      {/* Notifications */}
-      <BellOutlined
-        style={{
-          fontSize: 20,
-          color: token.colorTextSecondary,
-          cursor: 'pointer',
-        }}
-      />
+      <Space size={20}>
+        {/* Notifications */}
+        <BellOutlined
+          style={{
+            fontSize: 18,
+            color: token.colorTextSecondary,
+            cursor: 'pointer',
+          }}
+        />
 
-      {/* User Dropdown */}
-      <Dropdown menu={{ items: dropdownItems }} placement="bottomRight" arrow>
-        <Space style={{ cursor: 'pointer' }}>
-          <Avatar
-            icon={<UserOutlined />}
-            style={{
-              background: 'linear-gradient(135deg, #1677ff, #4096ff)',
-            }}
-          />
-          <span style={{ fontWeight: 500, color: token.colorText }}>
-            {user?.fullName || user?.username || 'User'}
-          </span>
-        </Space>
-      </Dropdown>
+        {/* User Dropdown */}
+        <Dropdown menu={{ items: dropdownItems }} placement="bottomRight" arrow>
+          <Space style={{ cursor: 'pointer' }} size={12}>
+            <Avatar
+              icon={<UserOutlined />}
+              style={{
+                background: 'linear-gradient(135deg, #1677ff, #4096ff)',
+                boxShadow: '0 2px 8px rgba(22,119,255,0.2)',
+              }}
+            />
+            <span style={{ fontWeight: 600, color: token.colorText, fontSize: 14 }}>
+              {user?.fullName || user?.username || 'Thành viên'}
+            </span>
+          </Space>
+        </Dropdown>
+      </Space>
     </Header>
   );
 };

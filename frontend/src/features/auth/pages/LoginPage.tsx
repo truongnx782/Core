@@ -1,9 +1,10 @@
 import React from 'react';
-import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd';
+import { Form, Card, Typography, Alert, Space } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useAuth } from '../../../hooks/useAuth';
 import { Navigate, Link } from 'react-router-dom';
 import InputField from '../../../components/common/InputField';
+import AppButton from '../../../components/common/AppButton';
 
 const { Title, Text } = Typography;
 
@@ -11,13 +12,7 @@ const LoginPage: React.FC = () => {
   const { login, loading, error, isAuthenticated, clearError } = useAuth();
   const [form] = Form.useForm();
 
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  const handleSubmit = (values: { email: string; password: string }) => {
-    login(values.email, values.password);
-  };
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return (
     <div
@@ -31,27 +26,21 @@ const LoginPage: React.FC = () => {
       }}
     >
       <Card
-        style={{
-          width: 440,
-          borderRadius: 16,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-          border: 'none',
-        }}
-        bodyStyle={{ padding: '48px 40px' }}
+        style={{ width: 420, borderRadius: 16, border: 'none', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
+        styles={{ body: { padding: '40px 32px' } }}
       >
-        {/* Logo & Title */}
-        <Space direction="vertical" size={4} style={{ width: '100%', marginBottom: 32, textAlign: 'center' }}>
+        <Space direction="vertical" size={0} style={{ width: '100%', marginBottom: 32, textAlign: 'center' }}>
           <div
             style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
+              width: 52,
+              height: 52,
+              borderRadius: 12,
               background: 'linear-gradient(135deg, #1677ff, #4096ff)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff',
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: 800,
               margin: '0 auto 16px',
               boxShadow: '0 8px 24px rgba(22,119,255,0.3)',
@@ -59,13 +48,10 @@ const LoginPage: React.FC = () => {
           >
             C
           </div>
-          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-            Welcome Back
-          </Title>
-          <Text type="secondary">Sign in to CoreAdmin Dashboard</Text>
+          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>Chào mừng trở lại</Title>
+          <Text type="secondary">Đăng nhập để quản lý hệ thống Core</Text>
         </Space>
 
-        {/* Error Alert */}
         {error && (
           <Alert
             message={error}
@@ -73,62 +59,44 @@ const LoginPage: React.FC = () => {
             showIcon
             closable
             onClose={clearError}
-            style={{ marginBottom: 24, borderRadius: 8 }}
+            style={{ marginBottom: 20, borderRadius: 8 }}
           />
         )}
 
-        {/* Login Form */}
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          autoComplete="off"
-          size="large"
-        >
+        <Form form={form} layout="vertical" onFinish={(v) => login(v.email, v.password)} size="large">
           <InputField
             name="email"
-            required={true}
-            type="email"
+            required
             prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Email address"
-            style={{ borderRadius: 10, height: 48 }}
+            placeholder="Email đăng nhập"
           />
 
           <InputField
             name="password"
-            required={true}
+            required
             type="password"
             prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Password"
-            style={{ borderRadius: 10, height: 48 }}
+            placeholder="Mật khẩu"
           />
 
-          <Form.Item style={{ marginBottom: 16 }}>
-            <Button
-              type="primary"
+          <Form.Item style={{ marginTop: 8 }}>
+            <AppButton
+              variant="primary"
               htmlType="submit"
               loading={loading}
               block
-              style={{
-                height: 48,
-                borderRadius: 10,
-                fontWeight: 600,
-                fontSize: 16,
-                background: 'linear-gradient(135deg, #1677ff, #4096ff)',
-                border: 'none',
-                boxShadow: '0 4px 16px rgba(22,119,255,0.3)',
-              }}
+              style={{ height: 48, fontSize: 16, fontWeight: 600, borderRadius: 10 }}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
+              Đăng nhập
+            </AppButton>
           </Form.Item>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Demo: <strong>admin@core.com</strong> / <strong>Admin@123</strong>
+              Demo: <b>admin@core.com / Admin@123</b>
             </Text>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Don't have an account? <Link to="/register">Register</Link>
+              Chưa có tài khoản? <Link to="/register">Đăng ký</Link>
             </Text>
           </div>
         </Form>

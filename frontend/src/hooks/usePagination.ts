@@ -1,32 +1,47 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useCallback } from 'react';
 import type { RootState, AppDispatch } from '../store';
-import { fetchUsersRequest } from '../features/users/userSlice';
+
+interface PaginationState {
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
 
 /**
- * Custom hook for managing server-side pagination + filters.
+ * Generic custom hook for managing server-side pagination.
+ * Hook dùng chung để quản lý phân trang phía server.
+ * 
+ * @param selector Function to select pagination state from Redux / Hàm chọn state phân trang
+ * @param actionCreator Function that returns the fetch action / Hàm tạo action fetch dữ liệu
  */
-export function usePagination() {
+export function usePagination<T extends PaginationState>(
+  selector: (state: RootState) => T,
+  actionCreator: (params: any) => any,
+  extraParams: Record<string, any> = {}
+) {
   const dispatch = useDispatch<AppDispatch>();
-  const { pagination, filters } = useSelector((state: RootState) => state.users);
+  const pagination = useSelector(selector);
+
+  // Stringify extraParams to use in dependency array without triggering on every render
+  const extraParamsKey = JSON.stringify(extraParams);
 
   const fetchPage = useCallback(
     (page: number, size?: number) => {
       dispatch(
-        fetchUsersRequest({
-          keyword: filters.keyword,
-          role: filters.role,
+        actionCreator({
+          ...JSON.parse(extraParamsKey),
           page: page,
           size: size || pagination.size,
         })
       );
     },
-    [dispatch, filters, pagination.size]
+    [dispatch, actionCreator, extraParamsKey, pagination.size]
   );
 
   const onPageChange = useCallback(
     (page: number, pageSize: number) => {
-      // Ant Design pagination is 1-indexed; API is 0-indexed
       fetchPage(page - 1, pageSize);
     },
     [fetchPage]
@@ -34,9 +49,8 @@ export function usePagination() {
 
   return {
     ...pagination,
-    currentPage: pagination.page + 1, // Convert to 1-indexed for UI
-    filters,
-    fetchPage,
+    currentPage: pagination.page + 1,
     onPageChange,
+    refresh: () => fetchPage(pagination.page),
   };
 }

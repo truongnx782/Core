@@ -1,9 +1,10 @@
 import React from 'react';
-import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd';
+import { Form, Card, Typography, Alert, Space } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import InputField from '../../../components/common/InputField';
+import AppButton from '../../../components/common/AppButton';
 
 const { Title, Text } = Typography;
 
@@ -11,18 +12,7 @@ const RegisterPage: React.FC = () => {
   const { register, loading, error, isAuthenticated, clearError } = useAuth();
   const [form] = Form.useForm();
 
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  const handleSubmit = (values: {
-    username: string;
-    email: string;
-    password: string;
-    fullName?: string;
-  }) => {
-    register(values.username, values.email, values.password, values.fullName);
-  };
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return (
     <div
@@ -36,26 +26,21 @@ const RegisterPage: React.FC = () => {
       }}
     >
       <Card
-        style={{
-          width: 460,
-          borderRadius: 16,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-          border: 'none',
-        }}
-        bodyStyle={{ padding: '48px 40px' }}
+        style={{ width: 440, borderRadius: 16, border: 'none', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
+        styles={{ body: { padding: '40px 32px' } }}
       >
-        <Space direction="vertical" size={4} style={{ width: '100%', marginBottom: 32, textAlign: 'center' }}>
+        <Space direction="vertical" size={0} style={{ width: '100%', marginBottom: 32, textAlign: 'center' }}>
           <div
             style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
+              width: 52,
+              height: 52,
+              borderRadius: 12,
               background: 'linear-gradient(135deg, #22c55e, #16a34a)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff',
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: 800,
               margin: '0 auto 16px',
               boxShadow: '0 8px 24px rgba(34,197,94,0.3)',
@@ -63,10 +48,8 @@ const RegisterPage: React.FC = () => {
           >
             C
           </div>
-          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>
-            Create Your Account
-          </Title>
-          <Text type="secondary">Register and get started with CoreAdmin</Text>
+          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>Tạo tài khoản</Title>
+          <Text type="secondary">Bắt đầu hành trình với CoreAdmin</Text>
         </Space>
 
         {error && (
@@ -76,67 +59,66 @@ const RegisterPage: React.FC = () => {
             showIcon
             closable
             onClose={clearError}
-            style={{ marginBottom: 24, borderRadius: 8 }}
+            style={{ marginBottom: 20, borderRadius: 8 }}
           />
         )}
 
-        <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off" size="large">
+        <Form 
+          form={form} 
+          layout="vertical" 
+          onFinish={(v) => register(v.username, v.email, v.password, v.fullName)} 
+          size="large"
+        >
           <InputField
             name="username"
-            required={true}
+            required
             prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Username"
-            style={{ borderRadius: 10, height: 48 }}
+            placeholder="Tên đăng nhập"
           />
 
           <InputField
             name="fullName"
             prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Full name (optional)"
-            style={{ borderRadius: 10, height: 48 }}
+            placeholder="Họ và tên (không bắt buộc)"
           />
 
           <InputField
             name="email"
-            required={true}
+            required
             type="email"
             prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Email address"
-            style={{ borderRadius: 10, height: 48 }}
+            placeholder="Email"
           />
 
           <InputField
             name="password"
-            required={true}
+            required
             type="password"
             prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Password"
-            style={{ borderRadius: 10, height: 48 }}
+            placeholder="Mật khẩu"
           />
 
-          <Form.Item style={{ marginBottom: 16 }}>
-            <Button
-              type="primary"
+          <Form.Item style={{ marginTop: 8 }}>
+            <AppButton
+              variant="primary"
               htmlType="submit"
               loading={loading}
               block
-              style={{
-                height: 48,
+              style={{ 
+                height: 48, 
+                fontSize: 16, 
+                fontWeight: 600, 
                 borderRadius: 10,
-                fontWeight: 600,
-                fontSize: 16,
-                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-                border: 'none',
-                boxShadow: '0 4px 16px rgba(34,197,94,0.3)',
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)' 
               }}
             >
-              {loading ? 'Creating account...' : 'Register'}
-            </Button>
+              Đăng ký ngay
+            </AppButton>
           </Form.Item>
 
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Already have an account? <Link to="/login">Sign in</Link>
+              Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
             </Text>
           </div>
         </Form>

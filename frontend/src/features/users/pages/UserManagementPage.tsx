@@ -36,13 +36,13 @@ import {
 } from '../userSlice';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { usePagination } from '../../../hooks/usePagination';
+import { useMutation } from '../../../hooks/useMutation';
 import GenericTable from '../../../components/common/GenericTable';
 import AppButton from '../../../components/common/AppButton';
 import AppModal from '../../../components/common/AppModal';
 import InputField from '../../../components/common/InputField';
 import type { ColumnsType } from 'antd/es/table';
 import type { UserInfo } from '../../auth/authTypes';
-import type { CreateUserRequest, UpdateUserRequest } from '../userTypes';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -63,102 +63,64 @@ const ROLE_COLORS: Record<string, string> = {
  */
 const UserManagementPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { users, loading, selectedUser, filters, pagination } = useSelector(
-    (state: RootState) => state.users
-  );
-  const { currentPage, totalElements, onPageChange } = usePagination();
-
+  const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  const { users, loading, filters, selectedUser } = useSelector((s: RootState) => s.users);
   const [searchValue, setSearchValue] = useState(filters.keyword);
   const debouncedSearch = useDebounce(searchValue, 400);
-  const [form] = Form.useForm();
 
-  // Fetch users on mount and when filters change
+  // Pagination & Fetching
+  const pagination = usePagination(
+    (s: RootState) => s.users.pagination,
+    fetchUsersRequest,
+    { keyword: debouncedSearch, role: filters.role }
+  );
+
   useEffect(() => {
-    dispatch(
-      fetchUsersRequest({
-        keyword: debouncedSearch,
-        role: filters.role,
-        page: 0,
-        size: pagination.size,
-      })
-    );
-  }, [dispatch, debouncedSearch, filters.role]);
+    pagination.onPageChange(1, 10);
+  }, [debouncedSearch, filters.role]);
 
-  // Sync debounced search to Redux
+  // Mutation (Create/Update)
+  const { mutate, isLoading: isSaving } = useMutation({
+    selector: (s: RootState) => s.users,
+    onSuccess: () => {
+      setIsModalOpen(false);
+      form.resetFields();
+    },
+  });
+
+  // Sync search to Redux
   useEffect(() => {
     dispatch(setKeyword(debouncedSearch));
-  }, [debouncedSearch, dispatch]);
+  }, [debouncedSearch]);
 
-  // Fill form values when editing
+  // Fill form when editing
   useEffect(() => {
     if (isModalOpen && isEditMode && selectedUser) {
-      form.setFieldsValue({
-        username: selectedUser.username,
-        email: selectedUser.email,
-        fullName: selectedUser.fullName,
-        phone: selectedUser.phone,
-        role: selectedUser.role,
-      });
+      form.setFieldsValue(selectedUser);
     }
   }, [isModalOpen, isEditMode, selectedUser, form]);
 
-  // ---- Modal Handlers ----
-  const openCreateModal = () => {
-    setIsEditMode(false);
-    dispatch(setSelectedUser(null));
-    form.resetFields();
+  // ---- Handlers ----
+  const handleOpenModal = (user?: UserInfo) => {
+    setIsEditMode(!!user);
+    dispatch(setSelectedUser(user || null));
+    if (!user) form.resetFields();
     setIsModalOpen(true);
   };
 
-  const openEditModal = (user: UserInfo) => {
-    setIsEditMode(true);
-    dispatch(setSelectedUser(user));
-    setIsModalOpen(true);
+  const handleModalOk = async () => {
+    const values = await form.validateFields();
+    if (isEditMode && selectedUser) {
+      mutate(updateUserRequest({ id: selectedUser.id, data: values }));
+    } else {
+      mutate(createUserRequest(values));
+    }
   };
 
-  const handleModalOk = () => {
-    form.validateFields().then((values) => {
-      if (isEditMode && selectedUser) {
-        const data: UpdateUserRequest = {
-          username: values.username,
-          email: values.email,
-          fullName: values.fullName,
-          phone: values.phone,
-          role: values.role,
-        };
-        dispatch(updateUserRequest({ id: selectedUser.id, data }));
-      } else {
-        const data: CreateUserRequest = {
-          username: values.username,
-          email: values.email,
-          password: values.password,
-          fullName: values.fullName,
-          phone: values.phone,
-          role: values.role,
-        };
-        dispatch(createUserRequest(data));
-      }
-      setIsModalOpen(false);
-      form.resetFields();
-    });
-  };
-
-  const handleDelete = (id: number) => {
-    dispatch(deleteUserRequest(id));
-  };
-
-  const handleRefresh = () => {
-    dispatch(
-      fetchUsersRequest({
-        keyword: filters.keyword,
-        role: filters.role,
-        page: pagination.page,
-        size: pagination.size,
-      })
-    );
-  };
+  const handleDelete = (id: number) => dispatch(deleteUserRequest(id));
 
   // ---- Table Columns ----
   const columns: ColumnsType<UserInfo> = [
@@ -236,7 +198,7 @@ const UserManagementPage: React.FC = () => {
               variant="primary"
               icon={<EditOutlined />}
               size="small"
-              onClick={() => openEditModal(record)}
+              onClick={() => handleOpenModal(record)}
             />
           </Tooltip>
           <Popconfirm
@@ -256,185 +218,96 @@ const UserManagementPage: React.FC = () => {
     },
   ];
 
-  // Stats
   const activeCount = users.filter((u) => u.active).length;
   const adminCount = users.filter((u) => u.role === 'ADMIN').length;
 
   return (
     <div>
-      {/* Stats Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={8}>
           <Card style={{ borderRadius: 12, borderLeft: '4px solid #1677ff' }}>
-            <Statistic
-              title="Total Users"
-              value={totalElements}
-              prefix={<TeamOutlined style={{ color: '#1677ff' }} />}
-            />
+            <Statistic title="Tổng người dùng" value={pagination.totalElements} prefix={<TeamOutlined style={{ color: '#1677ff' }} />} />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card style={{ borderRadius: 12, borderLeft: '4px solid #52c41a' }}>
-            <Statistic
-              title="Active Users"
-              value={activeCount}
-              prefix={<UserOutlined style={{ color: '#52c41a' }} />}
-            />
+            <Statistic title="Đang hoạt động" value={activeCount} prefix={<UserOutlined style={{ color: '#52c41a' }} />} />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card style={{ borderRadius: 12, borderLeft: '4px solid #ff4d4f' }}>
-            <Statistic
-              title="Admins"
-              value={adminCount}
-              prefix={<SafetyOutlined style={{ color: '#ff4d4f' }} />}
-            />
+            <Statistic title="Quản trị viên" value={adminCount} prefix={<SafetyOutlined style={{ color: '#ff4d4f' }} />} />
           </Card>
         </Col>
       </Row>
 
-      {/* Main Card */}
-      <Card
-        style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
-        styles={{ body: { padding: '24px' } }}
-      >
-        {/* Toolbar */}
-        <Row justify="space-between" align="middle" style={{ marginBottom: 20 }}>
-          <Col>
-            <Title level={4} style={{ margin: 0 }}>
-              User Management
-            </Title>
-          </Col>
+      <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+          <Col><Title level={4} style={{ margin: 0 }}>Quản lý người dùng</Title></Col>
           <Col>
             <Space size={12}>
               <Input
-                placeholder="Search users..."
+                placeholder="Tìm kiếm..."
                 prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 allowClear
-                style={{ width: 260, borderRadius: 8 }}
+                style={{ width: 220, borderRadius: 8 }}
               />
               <Select
-                placeholder="Filter by Role"
+                placeholder="Vai trò"
                 value={filters.role || undefined}
-                onChange={(value) => dispatch(setRoleFilter(value || ''))}
+                onChange={(v) => dispatch(setRoleFilter(v || ''))}
                 allowClear
-                style={{ width: 160 }}
+                style={{ width: 140 }}
               >
-                {ROLE_OPTIONS.map((role) => (
-                  <Option key={role} value={role}>
-                    {role}
-                  </Option>
-                ))}
+                {ROLE_OPTIONS.map((r) => <Option key={r} value={r}>{r}</Option>)}
               </Select>
-              <Tooltip title="Refresh">
-                <AppButton
-                  icon={<ReloadOutlined />}
-                  onClick={handleRefresh}
-                />
-              </Tooltip>
-              <AppButton
-                variant="primary"
-                icon={<PlusOutlined />}
-                onClick={openCreateModal}
-              >
-                Add User
+              <AppButton icon={<ReloadOutlined />} onClick={pagination.refresh} />
+              <AppButton variant="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal()}>
+                Thêm thành viên
               </AppButton>
             </Space>
           </Col>
         </Row>
 
-        {/* Table */}
         <GenericTable<UserInfo>
           columns={columns}
           dataSource={users}
           loading={loading}
           rowKey="id"
           pagination={{
-            current: currentPage,
+            current: pagination.currentPage,
             pageSize: pagination.size,
-            total: totalElements,
-            onChange: onPageChange,
+            total: pagination.totalElements,
+            onChange: pagination.onPageChange,
             showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} users`,
-            pageSizeOptions: ['5', '10', '20', '50'],
           }}
           scroll={{ x: 1200 }}
         />
       </Card>
 
-      {/* Create / Edit Modal */}
       <AppModal
-        title={isEditMode ? 'Edit User' : 'Create New User'}
+        title={isEditMode ? 'Cập nhật thông tin' : 'Thêm người dùng mới'}
         open={isModalOpen}
         onOk={handleModalOk}
-        onCancel={() => {
-          setIsModalOpen(false);
-          form.resetFields();
-        }}
-        confirmLoading={loading}
-        okText={isEditMode ? 'Update' : 'Create'}
+        onCancel={() => setIsModalOpen(false)}
+        confirmLoading={isSaving}
         width={520}
       >
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Row gutter={16}>
-            <Col span={12}>
-              <InputField
-                name="username"
-                label="Username"
-                required={true}
-                placeholder="Enter username"
-              />
-            </Col>
-            <Col span={12}>
-              <InputField
-                name="email"
-                label="Email"
-                required={true}
-                placeholder="Enter email"
-              />
-            </Col>
+            <Col span={12}><InputField name="username" label="Tên đăng nhập" required placeholder="username" /></Col>
+            <Col span={12}><InputField name="email" label="Email" required placeholder="example@mail.com" /></Col>
           </Row>
-
-          {!isEditMode && (
-            <InputField
-              name="password"
-              label="Password"
-              required={true}
-              type="password"
-              placeholder="Enter password"
-            />
-          )}
-
+          {!isEditMode && <InputField name="password" label="Mật khẩu" required type="password" placeholder="******" />}
           <Row gutter={16}>
-            <Col span={12}>
-              <InputField
-                name="fullName"
-                label="Full Name"
-                placeholder="Enter full name"
-              />
-            </Col>
-            <Col span={12}>
-              <InputField
-                name="phone"
-                label="Phone"
-                placeholder="Enter phone"
-              />
-            </Col>
+            <Col span={12}><InputField name="fullName" label="Họ và tên" placeholder="Nguyễn Văn A" /></Col>
+            <Col span={12}><InputField name="phone" label="Số điện thoại" placeholder="0987..." /></Col>
           </Row>
-
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: 'Role is required' }]}
-          >
-            <Select placeholder="Select role" size="large">
-              {ROLE_OPTIONS.map((role) => (
-                <Option key={role} value={role}>
-                  <Tag color={ROLE_COLORS[role]}>{role}</Tag>
-                </Option>
-              ))}
+          <Form.Item name="role" label="Vai trò" rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}>
+            <Select placeholder="Chọn vai trò">
+              {ROLE_OPTIONS.map((r) => <Option key={r} value={r}><Tag color={ROLE_COLORS[r]}>{r}</Tag></Option>)}
             </Select>
           </Form.Item>
         </Form>
