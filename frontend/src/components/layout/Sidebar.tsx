@@ -11,55 +11,57 @@ import {
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { RootState } from '../../store';
 
 const { Sider } = Layout;
 
-const menuItems = (role?: string) => {
-  if (role === 'STUDENT') {
-    return [
-      {
-        key: '/dashboard/exams',
-        icon: <FileTextOutlined />,
-        label: 'Examinations',
-      },
-    ];
-  }
-
-  return [
-    {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-    },
-    {
-      key: '/dashboard/exams',
-      icon: <FileTextOutlined />,
-      label: 'Examinations',
-    },
-    {
-      key: '/dashboard/users',
-      icon: <TeamOutlined />,
-      label: 'User Management',
-    },
-    {
-      key: '/dashboard/profile',
-      icon: <UserOutlined />,
-      label: 'Profile',
-    },
-    {
-      key: '/dashboard/settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
-    },
-  ];
-};
-
 const Sidebar: React.FC = () => {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
+
+  const getMenuItems = (role?: string) => {
+    if (role === 'STUDENT') {
+      return [
+        {
+          key: '/dashboard/exams',
+          icon: <FileTextOutlined />,
+          label: t('sidebar.exams'),
+        },
+      ];
+    }
+
+    return [
+      {
+        key: '/dashboard',
+        icon: <DashboardOutlined />,
+        label: t('sidebar.dashboard'),
+      },
+      {
+        key: '/dashboard/exams',
+        icon: <FileTextOutlined />,
+        label: t('sidebar.exams'),
+      },
+      {
+        key: '/dashboard/users',
+        icon: <TeamOutlined />,
+        label: t('sidebar.users'),
+      },
+      {
+        key: '/dashboard/profile',
+        icon: <UserOutlined />,
+        label: t('sidebar.profile'),
+      },
+      {
+        key: '/dashboard/settings',
+        icon: <SettingOutlined />,
+        label: t('sidebar.settings'),
+      },
+    ];
+  };
 
   return (
     <Sider
@@ -142,7 +144,7 @@ const Sidebar: React.FC = () => {
         theme="dark"
         mode="inline"
         selectedKeys={[location.pathname]}
-        items={menuItems(userRole)}
+        items={getMenuItems(userRole)}
         onClick={({ key }) => navigate(key)}
         style={{
           background: 'transparent',

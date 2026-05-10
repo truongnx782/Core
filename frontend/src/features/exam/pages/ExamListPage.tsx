@@ -27,6 +27,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import { useTranslation } from 'react-i18next';
 import type { AppDispatch, RootState } from '../../../store';
 import type { ExamInfo } from '../examTypes';
 
@@ -48,14 +49,8 @@ import InputField from '../../../components/common/InputField';
 
 const { Title, Text } = Typography;
 
-/**
- * Page component for listing available exams to students 
- * or managing all exams for administrators.
- * 
- * Component hiển thị danh sách đề thi cho sinh viên 
- * hoặc quản lý toàn bộ đề thi cho quản trị viên.
- */
 const ExamListPage: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -120,31 +115,30 @@ const ExamListPage: React.FC = () => {
   const getStatusTag = (startTime: string, endTime: string) => {
     const start = dayjs(startTime);
     const end = dayjs(endTime);
-    if (now.isBefore(start)) return <Tag color="blue">Sắp diễn ra</Tag>;
-    if (now.isAfter(end)) return <Tag color="red">Đã kết thúc</Tag>;
-    return <Tag color="green">Đang diễn ra</Tag>;
+    if (now.isBefore(start)) return <Tag color="blue">{t('exams.statusUpcoming')}</Tag>;
+    if (now.isAfter(end)) return <Tag color="red">{t('exams.statusEnded')}</Tag>;
+    return <Tag color="green">{t('exams.statusOngoing')}</Tag>;
   };
 
   const data = isAdmin ? adminList : available;
 
   return (
     <div>
-      {/* Statistics for Admin */}
       {isAdmin && (
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={8}>
             <Card style={{ borderRadius: 12, borderLeft: '4px solid #1677ff' }}>
-              <Statistic title="Tổng số đề thi" value={pagination.totalElements} prefix={<FileTextOutlined style={{ color: '#1677ff' }} />} />
+              <Statistic title={t('exams.totalExams')} value={pagination.totalElements} prefix={<FileTextOutlined style={{ color: '#1677ff' }} />} />
             </Card>
           </Col>
           <Col xs={24} sm={8}>
             <Card style={{ borderRadius: 12, borderLeft: '4px solid #52c41a' }}>
-              <Statistic title="Đang mở" value={data.filter(e => now.isBetween(dayjs(e.startTime), dayjs(e.endTime))).length} prefix={<ReloadOutlined style={{ color: '#52c41a' }} />} />
+              <Statistic title={t('exams.openExams')} value={data.filter(e => now.isBetween(dayjs(e.startTime), dayjs(e.endTime))).length} prefix={<ReloadOutlined style={{ color: '#52c41a' }} />} />
             </Card>
           </Col>
           <Col xs={24} sm={8}>
             <Card style={{ borderRadius: 12, borderLeft: '4px solid #faad14' }}>
-              <Statistic title="Chuyên đề" value={new Set(data.map(e => e.category)).size} prefix={<DashboardOutlined style={{ color: '#faad14' }} />} />
+              <Statistic title={t('exams.categories')} value={new Set(data.map(e => e.category)).size} prefix={<DashboardOutlined style={{ color: '#faad14' }} />} />
             </Card>
           </Col>
         </Row>
@@ -154,7 +148,7 @@ const ExamListPage: React.FC = () => {
         <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
           <Col>
             <Title level={4} style={{ margin: 0 }}>
-              {isAdmin ? 'Quản lý kho đề thi' : 'Đề thi của tôi'}
+              {isAdmin ? t('exams.adminTitle') : t('exams.userTitle')}
             </Title>
           </Col>
           <Col>
@@ -162,7 +156,7 @@ const ExamListPage: React.FC = () => {
               <AppButton icon={<ReloadOutlined />} onClick={pagination.refresh} />
               {isAdmin && (
                 <AppButton variant="primary" icon={<PlusOutlined />} onClick={() => handleOpenModal()}>
-                  Tạo đề thi mới
+                  {t('exams.createExam')}
                 </AppButton>
               )}
             </Space>
@@ -193,14 +187,14 @@ const ExamListPage: React.FC = () => {
                         </div>
 
                         <Text type="secondary" style={{ height: 44, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                          {exam.description || 'Không có mô tả cho đề thi này.'}
+                          {exam.description || t('exams.noDescription')}
                         </Text>
 
                         <Divider style={{ margin: '4px 0' }} />
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                          <Space><DashboardOutlined style={{ color: '#bfbfbf' }} /> <Text style={{ fontSize: 12 }}>{exam.category || 'Chung'}</Text></Space>
-                          <Space><ReloadOutlined style={{ color: '#bfbfbf' }} /> <Text style={{ fontSize: 12 }}>{exam.durationMinutes} phút</Text></Space>
+                          <Space><DashboardOutlined style={{ color: '#bfbfbf' }} /> <Text style={{ fontSize: 12 }}>{exam.category || t('exams.defaultCategory')}</Text></Space>
+                          <Space><ReloadOutlined style={{ color: '#bfbfbf' }} /> <Text style={{ fontSize: 12 }}>{exam.durationMinutes} {t('exams.minutes')}</Text></Space>
                         </div>
 
                         <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
@@ -212,21 +206,21 @@ const ExamListPage: React.FC = () => {
                                 disabled={!isOpen}
                                 onClick={() => navigate(`/dashboard/exams/${exam.id}/take`)}
                               >
-                                Vào thi
+                                {t('exams.startExam')}
                               </AppButton>
                               <AppButton block onClick={() => navigate(`/dashboard/exams/${exam.id}/result`)}>
-                                Xem kết quả
+                                {t('exams.viewResults')}
                               </AppButton>
                             </>
                           ) : (
                             <>
                               <AppButton block onClick={() => handleOpenModal(exam)}>
-                                Sửa
+                                {t('common.edit')}
                               </AppButton>
                               <AppButton block onClick={() => navigate(`/dashboard/exams/${exam.id}/questions`)}>
-                                Câu hỏi
+                                {t('exams.questions')}
                               </AppButton>
-                              <Popconfirm title="Xóa đề thi?" onConfirm={() => handleDelete(exam.id)}>
+                              <Popconfirm title={t('exams.deleteConfirm')} onConfirm={() => handleDelete(exam.id)}>
                                 <AppButton variant="danger" icon={<DeleteOutlined />} />
                               </Popconfirm>
                             </>
@@ -246,7 +240,7 @@ const ExamListPage: React.FC = () => {
                 total={pagination.totalElements}
                 onChange={pagination.onPageChange}
                 showSizeChanger
-                showTotal={(total) => `Tổng cộng ${total} đề thi`}
+                showTotal={(total) => `${t('common.total')} ${total} ${t('exams.examsLabel')}`}
               />
             </div>
           </>
@@ -254,7 +248,7 @@ const ExamListPage: React.FC = () => {
       </Card>
 
       <AppModal
-        title={isEditMode ? 'Cập nhật đề thi' : 'Tạo đề thi mới'}
+        title={isEditMode ? t('exams.updateExam') : t('exams.createExam')}
         open={modalOpen}
         onOk={handleModalOk}
         onCancel={() => setModalOpen(false)}
@@ -263,17 +257,17 @@ const ExamListPage: React.FC = () => {
       >
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Row gutter={16}>
-            <Col span={12}><InputField name="name" label="Tên đề thi" required placeholder="Tên đề" /></Col>
-            <Col span={12}><InputField name="category" label="Chuyên đề" placeholder="Chuyên đề" /></Col>
+            <Col span={12}><InputField name="name" label={t('exams.examName')} required placeholder={t('exams.examNamePlaceholder')} /></Col>
+            <Col span={12}><InputField name="category" label={t('exams.categoryLabel')} placeholder={t('exams.categoryPlaceholder')} /></Col>
           </Row>
-          <Form.Item name="description" label="Mô tả"><Input.TextArea rows={3} /></Form.Item>
+          <Form.Item name="description" label={t('exams.descriptionLabel')}><Input.TextArea rows={3} /></Form.Item>
           <Row gutter={16}>
-            <Col span={12}><Form.Item name="startTime" label="Bắt đầu" required><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="endTime" label="Kết thúc" required><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="startTime" label={t('exams.startTime')} required><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="endTime" label={t('exams.endTime')} required><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
           </Row>
           <Row gutter={16} align="middle">
-            <Col span={12}><Form.Item name="durationMinutes" label="Thời lượng (phút)" required><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="published" label="Công khai" valuePropName="checked"><Switch /></Form.Item></Col>
+            <Col span={12}><Form.Item name="durationMinutes" label={t('exams.durationMinutes')} required><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="published" label={t('exams.published')} valuePropName="checked"><Switch /></Form.Item></Col>
           </Row>
         </Form>
       </AppModal>

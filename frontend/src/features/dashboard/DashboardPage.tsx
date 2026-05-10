@@ -7,13 +7,13 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 
-/**
- * Dashboard overview page with welcome message and statistics.
- */
 const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
       {/* Welcome Section */}
@@ -27,20 +27,20 @@ const DashboardPage: React.FC = () => {
         styles={{ body: { padding: '32px 40px' } }}
       >
         <Title level={3} style={{ color: '#fff', margin: 0 }}>
-          Welcome to CoreAdmin 👋
+          {t('common.welcomeTitle')}
         </Title>
         <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16 }}>
-          Manage your users and system settings from this dashboard.
+          {t('common.welcomeSubtitle')}
         </Text>
       </Card>
 
       {/* Stats */}
       <Row gutter={[20, 20]} style={{ marginBottom: 24 }}>
         {[
-          { title: 'Total Users', value: 1250, icon: <TeamOutlined />, color: '#1677ff', bg: '#e6f4ff' },
-          { title: 'Active Users', value: 980, icon: <CheckCircleOutlined />, color: '#52c41a', bg: '#f6ffed' },
-          { title: 'Admins', value: 12, icon: <SafetyOutlined />, color: '#ff4d4f', bg: '#fff2f0' },
-          { title: 'Growth', value: 15.3, icon: <RiseOutlined />, color: '#722ed1', bg: '#f9f0ff', suffix: '%' },
+          { title: t('users.totalUsers'), value: 1250, icon: <TeamOutlined />, color: '#1677ff', bg: '#e6f4ff' },
+          { title: t('users.activeUsers'), value: 980, icon: <CheckCircleOutlined />, color: '#52c41a', bg: '#f6ffed' },
+          { title: t('users.adminUsers'), value: 12, icon: <SafetyOutlined />, color: '#ff4d4f', bg: '#fff2f0' },
+          { title: t('common.growth'), value: 15.3, icon: <RiseOutlined />, color: '#722ed1', bg: '#f9f0ff', suffix: '%' },
         ].map((stat, index) => (
           <Col xs={24} sm={12} lg={6} key={index}>
             <Card
@@ -81,7 +81,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Recent Activity */}
       <Card
-        title="Recent Activity"
+        title={t('common.recentActivity')}
         style={{ borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
       >
         <Timeline

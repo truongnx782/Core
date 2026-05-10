@@ -3,6 +3,7 @@ import { Form, Card, Typography, Alert, Space } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useAuth } from '../../../hooks/useAuth';
 import { Navigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import InputField from '../../../components/common/InputField';
 import AppButton from '../../../components/common/AppButton';
 
@@ -11,6 +12,7 @@ const { Title, Text } = Typography;
 const LoginPage: React.FC = () => {
   const { login, loading, error, isAuthenticated, clearError } = useAuth();
   const [form] = Form.useForm();
+  const { t } = useTranslation();
 
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
@@ -48,8 +50,8 @@ const LoginPage: React.FC = () => {
           >
             C
           </div>
-          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>Chào mừng trở lại</Title>
-          <Text type="secondary">Đăng nhập để quản lý hệ thống Core</Text>
+          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>{t('auth.loginTitle')}</Title>
+          <Text type="secondary">{t('auth.loginSubtitle')}</Text>
         </Space>
 
         {error && (
@@ -68,7 +70,7 @@ const LoginPage: React.FC = () => {
             name="email"
             required
             prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Email đăng nhập"
+            placeholder={t('auth.emailLoginPlaceholder')}
           />
 
           <InputField
@@ -76,7 +78,7 @@ const LoginPage: React.FC = () => {
             required
             type="password"
             prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Mật khẩu"
+            placeholder={t('auth.passwordPlaceholder')}
           />
 
           <Form.Item style={{ marginTop: 8 }}>
@@ -87,16 +89,16 @@ const LoginPage: React.FC = () => {
               block
               style={{ height: 48, fontSize: 16, fontWeight: 600, borderRadius: 10 }}
             >
-              Đăng nhập
+              {t('auth.loginButton')}
             </AppButton>
           </Form.Item>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Demo: <b>admin@core.com / Admin@123</b>
+              {t('auth.demoInfo')}
             </Text>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Chưa có tài khoản? <Link to="/register">Đăng ký</Link>
+              {t('auth.noAccount')} <Link to="/register">{t('common.register')}</Link>
             </Text>
           </div>
         </Form>

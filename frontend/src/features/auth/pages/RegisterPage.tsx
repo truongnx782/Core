@@ -5,12 +5,14 @@ import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import InputField from '../../../components/common/InputField';
 import AppButton from '../../../components/common/AppButton';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 
 const RegisterPage: React.FC = () => {
   const { register, loading, error, isAuthenticated, clearError } = useAuth();
   const [form] = Form.useForm();
+  const { t } = useTranslation();
 
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
@@ -48,8 +50,8 @@ const RegisterPage: React.FC = () => {
           >
             C
           </div>
-          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>Tạo tài khoản</Title>
-          <Text type="secondary">Bắt đầu hành trình với CoreAdmin</Text>
+          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>{t('auth.registerTitle')}</Title>
+          <Text type="secondary">{t('auth.registerSubtitle')}</Text>
         </Space>
 
         {error && (
@@ -73,13 +75,13 @@ const RegisterPage: React.FC = () => {
             name="username"
             required
             prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Tên đăng nhập"
+            placeholder={t('auth.usernamePlaceholder')}
           />
 
           <InputField
             name="fullName"
             prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Họ và tên (không bắt buộc)"
+            placeholder={t('auth.fullNamePlaceholder')}
           />
 
           <InputField
@@ -87,7 +89,7 @@ const RegisterPage: React.FC = () => {
             required
             type="email"
             prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Email"
+            placeholder={t('auth.emailPlaceholder')}
           />
 
           <InputField
@@ -95,7 +97,7 @@ const RegisterPage: React.FC = () => {
             required
             type="password"
             prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="Mật khẩu"
+            placeholder={t('auth.passwordPlaceholder')}
           />
 
           <Form.Item style={{ marginTop: 8 }}>
@@ -112,13 +114,13 @@ const RegisterPage: React.FC = () => {
                 background: 'linear-gradient(135deg, #22c55e, #16a34a)' 
               }}
             >
-              Đăng ký ngay
+              {t('auth.registerButton')}
             </AppButton>
           </Form.Item>
 
           <div style={{ textAlign: 'center', marginTop: 16 }}>
             <Text type="secondary" style={{ fontSize: 13 }}>
-              Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
+              {t('auth.alreadyHaveAccount')} <Link to="/login">{t('common.login')}</Link>
             </Text>
           </div>
         </Form>

@@ -18,6 +18,8 @@ interface GenericTableProps<T> {
  * Bảng dữ liệu (Table) dùng chung, tích hợp sẵn Ant Design Table.
  * Cung cấp style đồng nhất, trạng thái loading và text hiển thị khi không có dữ liệu.
  */
+import { useTranslation } from 'react-i18next';
+
 function GenericTable<T extends object>({
   columns,
   dataSource,
@@ -27,6 +29,8 @@ function GenericTable<T extends object>({
   onChange,
   scroll,
 }: GenericTableProps<T>) {
+  const { t } = useTranslation();
+
   return (
     <Table<T>
       columns={columns}
@@ -37,7 +41,7 @@ function GenericTable<T extends object>({
       onChange={(_pagination) => onChange?.(_pagination)}
       scroll={scroll || { x: 'max-content' }}
       locale={{
-        emptyText: <Empty description="No data found" />,
+        emptyText: <Empty description={t('common.noData')} />,
       }}
       style={{ borderRadius: 12, overflow: 'hidden' }}
     />

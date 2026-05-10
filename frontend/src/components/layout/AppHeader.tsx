@@ -4,8 +4,10 @@ import {
   UserOutlined,
   LogoutOutlined,
   BellOutlined,
+  GlobalOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import type { MenuProps } from 'antd';
 
 const { Header } = Layout;
@@ -13,20 +15,40 @@ const { Header } = Layout;
 const AppHeader: React.FC = () => {
   const { user, logout } = useAuth();
   const { token } = theme.useToken();
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   const dropdownItems: MenuProps['items'] = [
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: 'Profile',
+      label: t('common.profile'),
     },
     { type: 'divider' },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: 'Logout',
+      label: t('common.logout'),
       danger: true,
       onClick: logout,
+    },
+  ];
+
+  const languageItems: MenuProps['items'] = [
+    {
+      key: 'vi',
+      label: 'Tiếng Việt',
+      onClick: () => changeLanguage('vi'),
+      disabled: i18n.language.startsWith('vi'),
+    },
+    {
+      key: 'en',
+      label: 'English',
+      onClick: () => changeLanguage('en'),
+      disabled: i18n.language.startsWith('en'),
     },
   ];
 
@@ -45,7 +67,17 @@ const AppHeader: React.FC = () => {
         height: 64,
       }}
     >
-      <Space size={20}>
+      <Space size={24}>
+        {/* Language Switcher */}
+        <Dropdown menu={{ items: languageItems }} placement="bottomRight" arrow>
+          <Space style={{ cursor: 'pointer', padding: '4px 8px', borderRadius: 6, transition: 'all 0.3s' }} className="hover-bg">
+            <GlobalOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
+            <span style={{ fontWeight: 500, fontSize: 13, textTransform: 'uppercase' }}>
+              {i18n.language.split('-')[0]}
+            </span>
+          </Space>
+        </Dropdown>
+
         {/* Notifications */}
         <BellOutlined
           style={{
@@ -66,7 +98,7 @@ const AppHeader: React.FC = () => {
               }}
             />
             <span style={{ fontWeight: 600, color: token.colorText, fontSize: 14 }}>
-              {user?.fullName || user?.username || 'Thành viên'}
+              {user?.fullName || user?.username || t('common.member')}
             </span>
           </Space>
         </Dropdown>

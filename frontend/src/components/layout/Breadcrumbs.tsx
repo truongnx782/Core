@@ -2,21 +2,20 @@ import React from 'react';
 import { Breadcrumb } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import { useLocation, Link } from 'react-router-dom';
-
-/**
- * Breadcrumb labels for routes.
- */
-const routeLabels: Record<string, string> = {
-  dashboard: 'Dashboard',
-  exams: 'Examinations',
-  users: 'User Management',
-  profile: 'Profile',
-  settings: 'Settings',
-};
+import { useTranslation } from 'react-i18next';
 
 const Breadcrumbs: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const pathSegments = location.pathname.split('/').filter(Boolean);
+
+  const routeLabels: Record<string, string> = {
+    dashboard: t('sidebar.dashboard'),
+    exams: t('sidebar.exams'),
+    users: t('sidebar.users'),
+    profile: t('sidebar.profile'),
+    settings: t('sidebar.settings'),
+  };
 
   const items = [
     {
