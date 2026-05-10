@@ -24,7 +24,7 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController extends BaseController {
 
     private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
@@ -51,7 +51,7 @@ public class AuthController {
         String refreshToken = authService.createRefreshToken(authResponse.getUser().getId());
         addRefreshTokenCookie(response, refreshToken);
 
-        return ResponseEntity.ok(BaseResponse.success("Login successful", authResponse));
+        return success(authResponse);
     }
 
     /**
@@ -74,7 +74,7 @@ public class AuthController {
         String refreshToken = authService.createRefreshToken(authResponse.getUser().getId());
         addRefreshTokenCookie(response, refreshToken);
 
-        return ResponseEntity.ok(BaseResponse.success("Registration successful", authResponse));
+        return success(authResponse);
     }
 
     @PostMapping("/refresh-token")

@@ -19,6 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Service implementation for managing questions within an exam.
+ * Triển khai dịch vụ để quản lý các câu hỏi trong một đề thi.
+ */
 @Service
 @RequiredArgsConstructor
 public class QuestionServiceImpl implements QuestionService {
@@ -28,6 +32,14 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionOptionRepository optionRepository;
     private final QuestionMapper questionMapper;
 
+    /**
+     * Adds a new question and its options to a specific exam.
+     * Thêm một câu hỏi mới và các đáp án đi kèm vào một đề thi cụ thể.
+     *
+     * @param examId ID of the exam / ID của đề thi
+     * @param request Question details / Thông tin chi tiết câu hỏi
+     * @return Saved question details / Thông tin câu hỏi đã lưu
+     */
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")

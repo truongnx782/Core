@@ -17,6 +17,10 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Service implementation for handling student exam submissions and scoring.
+ * Triển khai dịch vụ để xử lý việc nộp bài và chấm điểm bài thi của sinh viên.
+ */
 @Service
 @RequiredArgsConstructor
 public class SubmissionServiceImpl implements SubmissionService {
@@ -29,6 +33,14 @@ public class SubmissionServiceImpl implements SubmissionService {
     private final StudentAnswerRepository answerRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Processes and scores an exam submission.
+     * Xử lý và chấm điểm một bài thi đã nộp.
+     *
+     * @param examId ID of the exam being submitted / ID của đề thi đang nộp
+     * @param request Submission details including answers / Thông tin chi tiết bài nộp bao gồm các câu trả lời
+     * @return Scoring results and review / Kết quả chấm điểm và xem lại bài làm
+     */
     @Override
     @Transactional
     public StudentSubmissionResponse submit(Long examId, SubmitExamRequest request) {

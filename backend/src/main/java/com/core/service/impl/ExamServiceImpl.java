@@ -27,6 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Implementation of the ExamService for managing exams and their sessions.
+ * Triển khai của ExamService để quản lý các đề thi và các phiên thi của sinh viên.
+ */
 @Service
 @RequiredArgsConstructor
 public class ExamServiceImpl implements ExamService {
@@ -41,6 +45,13 @@ public class ExamServiceImpl implements ExamService {
 
     // ---- Admin ----
 
+    /**
+     * Creates a new exam in the system.
+     * Tạo một đề thi mới trong hệ thống.
+     *
+     * @param request The exam creation details / Thông tin chi tiết để tạo đề thi
+     * @return The created exam details / Thông tin đề thi đã tạo
+     */
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -55,6 +66,14 @@ public class ExamServiceImpl implements ExamService {
         return examMapper.toResponse(exam);
     }
 
+    /**
+     * Updates an existing exam's information.
+     * Cập nhật thông tin của một đề thi hiện có.
+     *
+     * @param id The ID of the exam to update / ID của đề thi cần cập nhật
+     * @param request The updated exam details / Thông tin đề thi mới
+     * @return The updated exam details / Thông tin đề thi sau khi cập nhật
+     */
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -105,6 +124,13 @@ public class ExamServiceImpl implements ExamService {
         return PageResponse.of(content, examPage.getNumber(), examPage.getSize(), examPage.getTotalElements(), examPage.getTotalPages(), examPage.isLast());
     }
 
+    /**
+     * Initiates an exam session for a student.
+     * Bắt đầu một phiên thi cho sinh viên.
+     *
+     * @param examId The ID of the exam to start / ID của đề thi muốn bắt đầu
+     * @return Details for the started session including questions / Thông tin chi tiết phiên thi bao gồm danh sách câu hỏi
+     */
     @Override
     @Transactional
     public StartExamResponse startExam(Long examId) {

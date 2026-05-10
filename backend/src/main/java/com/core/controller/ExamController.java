@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/exams")
 @RequiredArgsConstructor
-public class ExamController {
+public class ExamController extends BaseController {
 
     private final ExamService examService;
 
@@ -25,21 +25,18 @@ public class ExamController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<BaseResponse<ExamResponse>> create(@Valid @RequestBody ExamRequest request) {
-        // Tạo mới đề thi, chỉ admin/manager mới được phép
-        ExamResponse created = examService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("Exam created", created));
+        return success(examService.create(request));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<BaseResponse<ExamResponse>> update(@PathVariable Long id, @Valid @RequestBody ExamRequest request) {
-        // Cập nhật thông tin đề thi
-        return ResponseEntity.ok(BaseResponse.success("Exam updated", examService.update(id, request)));
+        return success(examService.update(id, request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse<ExamResponse>> get(@PathVariable Long id) {
-        return ResponseEntity.ok(BaseResponse.success(examService.getById(id)));
+    public ResponseEntity<BaseResponse<ExamResponse>> getById(@PathVariable Long id) {
+        return success(examService.getById(id));
     }
 
     @GetMapping
