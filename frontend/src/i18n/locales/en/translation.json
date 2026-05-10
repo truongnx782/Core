@@ -20,7 +20,6 @@
     "phone": "Phone",
     "selectRole": "Select Role",
     "dashboard": "Dashboard",
-    "exams": "Examinations",
     "userManagement": "User Management",
     "settings": "Settings",
     "search": "Search",
@@ -59,7 +58,6 @@
   },
   "sidebar": {
     "dashboard": "Dashboard",
-    "exams": "Examinations",
     "users": "User Management",
     "profile": "Profile",
     "settings": "Settings"
@@ -78,15 +76,5 @@
     "totalUsers": "Total Users",
     "activeUsers": "Active Users",
     "adminUsers": "Administrators"
-  },
-  "exams": {
-    "title": "Examinations",
-    "subtitle": "Browse and take exams",
-    "createExam": "Create Exam",
-    "examName": "Exam Name",
-    "duration": "Duration",
-    "totalQuestions": "Total Questions",
-    "startExam": "Start Exam",
-    "viewResults": "View Results"
   }
 }

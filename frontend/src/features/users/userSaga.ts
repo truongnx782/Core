@@ -1,11 +1,10 @@
-import { call, put, takeLatest, select } from 'redux-saga/effects';
+import { put, takeLatest, select } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { message } from 'antd';
+
 import { userService } from './userService';
 import {
   fetchUsersRequest,
   fetchUsersSuccess,
-  fetchUsersFailure,
   createUserRequest,
   createUserSuccess,
   createUserFailure,
@@ -18,7 +17,7 @@ import {
 } from './userSlice';
 import type { UserFilterParams, CreateUserRequest, UpdateUserRequest } from './userTypes';
 import type { RootState } from '../../store';
-import type { AxiosResponse } from 'axios';
+
 
 import { apiSaga } from '../../store/sagaHelper';
 

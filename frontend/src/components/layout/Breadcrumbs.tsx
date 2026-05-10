@@ -11,7 +11,6 @@ const Breadcrumbs: React.FC = () => {
 
   const routeLabels: Record<string, string> = {
     dashboard: t('sidebar.dashboard'),
-    exams: t('sidebar.exams'),
     users: t('sidebar.users'),
     profile: t('sidebar.profile'),
     settings: t('sidebar.settings'),

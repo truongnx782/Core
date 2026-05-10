@@ -7,17 +7,13 @@ import LoginPage from '../features/auth/pages/LoginPage';
 import RegisterPage from '../features/auth/pages/RegisterPage';
 import DashboardPage from '../features/dashboard/DashboardPage';
 import UserManagementPage from '../features/users/pages/UserManagementPage';
-import ExamListPage from '../features/exam/pages/ExamListPage';
-import ExamTakingPage from '../features/exam/pages/ExamTakingPage';
-import ExamResultPage from '../features/exam/pages/ExamResultPage';
-import ExamQuestionManagementPage from '../features/exam/pages/ExamQuestionManagementPage';
 import type { RootState } from '../store';
 
 const AppRoutes: React.FC = () => {
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
   const RequireRole: React.FC<{ roles: string[]; children: React.ReactNode }> = ({ roles, children }) => {
-    return roles.includes(userRole || '') ? <>{children}</> : <Navigate to="/dashboard/exams" replace />;
+    return roles.includes(userRole || '') ? <>{children}</> : <Navigate to="/dashboard" replace />;
   };
 
   return (
@@ -31,7 +27,7 @@ const AppRoutes: React.FC = () => {
         <Route element={<DashboardLayout />}>
           <Route
             path="/dashboard"
-            element={userRole === 'STUDENT' ? <Navigate to="/dashboard/exams" replace /> : <DashboardPage />}
+            element={<DashboardPage />}
           />
           <Route
             path="/dashboard/users"
@@ -41,17 +37,7 @@ const AppRoutes: React.FC = () => {
               </RequireRole>
             }
           />
-          <Route path="/dashboard/exams" element={<ExamListPage />} />
-          <Route path="/dashboard/exams/:id/take" element={<ExamTakingPage />} />
-          <Route path="/dashboard/exams/:id/result" element={<ExamResultPage />} />
-          <Route
-            path="/dashboard/exams/:id/questions"
-            element={
-              <RequireRole roles={['ADMIN', 'MANAGER']}>
-                <ExamQuestionManagementPage />
-              </RequireRole>
-            }
-          />
+
         </Route>
       </Route>
 

@@ -10,8 +10,7 @@ import {
   registerFailure,
   logoutAction,
 } from './authSlice';
-import type { AxiosResponse } from 'axios';
-import type { AuthResponse, BaseResponse } from './authTypes';
+import type { AuthResponse } from './authTypes';
 
 import { apiSaga } from '../../store/sagaHelper';
 

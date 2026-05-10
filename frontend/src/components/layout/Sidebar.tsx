@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Layout, Menu } from 'antd';
 import {
   DashboardOutlined,
   UserOutlined,
   TeamOutlined,
   SettingOutlined,
-  FileTextOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import type { RootState } from '../../store';
+
 
 const { Sider } = Layout;
 
@@ -21,29 +19,13 @@ const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
-  const getMenuItems = (role?: string) => {
-    if (role === 'STUDENT') {
-      return [
-        {
-          key: '/dashboard/exams',
-          icon: <FileTextOutlined />,
-          label: t('sidebar.exams'),
-        },
-      ];
-    }
-
+  const getMenuItems = () => {
     return [
       {
         key: '/dashboard',
         icon: <DashboardOutlined />,
         label: t('sidebar.dashboard'),
-      },
-      {
-        key: '/dashboard/exams',
-        icon: <FileTextOutlined />,
-        label: t('sidebar.exams'),
       },
       {
         key: '/dashboard/users',
@@ -144,7 +126,7 @@ const Sidebar: React.FC = () => {
         theme="dark"
         mode="inline"
         selectedKeys={[location.pathname]}
-        items={getMenuItems(userRole)}
+        items={getMenuItems()}
         onClick={({ key }) => navigate(key)}
         style={{
           background: 'transparent',

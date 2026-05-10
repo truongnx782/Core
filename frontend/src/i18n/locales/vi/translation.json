@@ -20,7 +20,6 @@
     "phone": "Số điện thoại",
     "selectRole": "Chọn vai trò",
     "dashboard": "Bảng điều khiển",
-    "exams": "Danh sách đề thi",
     "userManagement": "Quản lý người dùng",
     "settings": "Cài đặt",
     "search": "Tìm kiếm",
@@ -59,7 +58,6 @@
   },
   "sidebar": {
     "dashboard": "Bảng điều khiển",
-    "exams": "Kỳ thi",
     "users": "Quản lý người dùng",
     "profile": "Cá nhân",
     "settings": "Cài đặt"
@@ -78,15 +76,5 @@
     "totalUsers": "Tổng người dùng",
     "activeUsers": "Đang hoạt động",
     "adminUsers": "Quản trị viên"
-  },
-  "exams": {
-    "title": "Kỳ thi",
-    "subtitle": "Danh sách và tham gia các kỳ thi",
-    "createExam": "Tạo đề thi",
-    "examName": "Tên đề thi",
-    "duration": "Thời gian",
-    "totalQuestions": "Số câu hỏi",
-    "startExam": "Bắt đầu thi",
-    "viewResults": "Xem kết quả"
   }
 }
