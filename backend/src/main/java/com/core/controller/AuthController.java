@@ -31,6 +31,14 @@ public class AuthController {
     private final AuthService authService;
     private final JwtProperties jwtProperties;
 
+    /**
+     * Authenticate user and generate tokens.
+     * Xác thực người dùng và tạo token.
+     *
+     * @param request Login credentials (email, password)
+     * @param response HTTP response to set refresh token cookie
+     * @return AuthResponse containing access token and user info
+     */
     @PostMapping("/login")
     public ResponseEntity<BaseResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request,
@@ -39,12 +47,21 @@ public class AuthController {
         AuthResponse authResponse = authService.login(request);
 
         // Create refresh token and set as HttpOnly cookie
+        // Tạo refresh token và lưu vào HttpOnly cookie
         String refreshToken = authService.createRefreshToken(authResponse.getUser().getId());
         addRefreshTokenCookie(response, refreshToken);
 
         return ResponseEntity.ok(BaseResponse.success("Login successful", authResponse));
     }
 
+    /**
+     * Register a new user account.
+     * Đăng ký tài khoản người dùng mới.
+     *
+     * @param request Registration details
+     * @param response HTTP response to set refresh token cookie
+     * @return AuthResponse containing access token and user info
+     */
     @PostMapping("/register")
     public ResponseEntity<BaseResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request,
@@ -53,6 +70,7 @@ public class AuthController {
         AuthResponse authResponse = authService.register(request);
 
         // Create refresh token and set as HttpOnly cookie
+        // Tạo refresh token và lưu vào HttpOnly cookie
         String refreshToken = authService.createRefreshToken(authResponse.getUser().getId());
         addRefreshTokenCookie(response, refreshToken);
 

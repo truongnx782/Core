@@ -39,6 +39,7 @@ import { usePagination } from '../../../hooks/usePagination';
 import GenericTable from '../../../components/common/GenericTable';
 import AppButton from '../../../components/common/AppButton';
 import AppModal from '../../../components/common/AppModal';
+import InputField from '../../../components/common/InputField';
 import type { ColumnsType } from 'antd/es/table';
 import type { UserInfo } from '../../auth/authTypes';
 import type { CreateUserRequest, UpdateUserRequest } from '../userTypes';
@@ -53,6 +54,13 @@ const ROLE_COLORS: Record<string, string> = {
   USER: 'green',
 };
 
+/**
+ * Page component for managing system users.
+ * Requires ADMIN role for full CRUD capabilities.
+ * 
+ * Component trang quản trị người dùng.
+ * Yêu cầu quyền ADMIN để thực hiện các thao tác CRUD.
+ */
 const UserManagementPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { users, loading, selectedUser, filters, pagination } = useSelector(
@@ -372,51 +380,47 @@ const UserManagementPage: React.FC = () => {
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
+              <InputField
                 name="username"
                 label="Username"
-                rules={[{ required: true, message: 'Username is required' }]}
-              >
-                <Input placeholder="Enter username" />
-              </Form.Item>
+                required={true}
+                placeholder="Enter username"
+              />
             </Col>
             <Col span={12}>
-              <Form.Item
+              <InputField
                 name="email"
                 label="Email"
-                rules={[
-                  { required: true, message: 'Email is required' },
-                  { type: 'email', message: 'Invalid email format' },
-                ]}
-              >
-                <Input placeholder="Enter email" />
-              </Form.Item>
+                required={true}
+                placeholder="Enter email"
+              />
             </Col>
           </Row>
 
           {!isEditMode && (
-            <Form.Item
+            <InputField
               name="password"
               label="Password"
-              rules={[
-                { required: true, message: 'Password is required' },
-                { min: 6, message: 'Min 6 characters' },
-              ]}
-            >
-              <Input.Password placeholder="Enter password" />
-            </Form.Item>
+              required={true}
+              type="password"
+              placeholder="Enter password"
+            />
           )}
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="fullName" label="Full Name">
-                <Input placeholder="Enter full name" />
-              </Form.Item>
+              <InputField
+                name="fullName"
+                label="Full Name"
+                placeholder="Enter full name"
+              />
             </Col>
             <Col span={12}>
-              <Form.Item name="phone" label="Phone">
-                <Input placeholder="Enter phone" />
-              </Form.Item>
+              <InputField
+                name="phone"
+                label="Phone"
+                placeholder="Enter phone"
+              />
             </Col>
           </Row>
 
@@ -425,7 +429,7 @@ const UserManagementPage: React.FC = () => {
             label="Role"
             rules={[{ required: true, message: 'Role is required' }]}
           >
-            <Select placeholder="Select role">
+            <Select placeholder="Select role" size="large">
               {ROLE_OPTIONS.map((role) => (
                 <Option key={role} value={role}>
                   <Tag color={ROLE_COLORS[role]}>{role}</Tag>

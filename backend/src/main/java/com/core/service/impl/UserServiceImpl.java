@@ -119,6 +119,10 @@ public class UserServiceImpl implements UserService {
 
     // ---- Private helper methods (DRY) ----
 
+    /**
+     * Tìm User theo ID hoặc ném lỗi nếu không tồn tại.
+     * Find User by ID or throw exception if not found.
+     */
     private User findUserOrThrow(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));

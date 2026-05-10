@@ -3,6 +3,7 @@ import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useAuth } from '../../../hooks/useAuth';
 import { Navigate, Link } from 'react-router-dom';
+import InputField from '../../../components/common/InputField';
 
 const { Title, Text } = Typography;
 
@@ -84,33 +85,23 @@ const LoginPage: React.FC = () => {
           autoComplete="off"
           size="large"
         >
-          <Form.Item
+          <InputField
             name="email"
-            rules={[
-              { required: true, message: 'Please enter your email' },
-              { type: 'email', message: 'Invalid email format' },
-            ]}
-          >
-            <Input
-              prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
-              placeholder="Email address"
-              style={{ borderRadius: 10, height: 48 }}
-            />
-          </Form.Item>
+            required={true}
+            type="email"
+            prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="Email address"
+            style={{ borderRadius: 10, height: 48 }}
+          />
 
-          <Form.Item
+          <InputField
             name="password"
-            rules={[
-              { required: true, message: 'Please enter your password' },
-              { min: 6, message: 'Password must be at least 6 characters' },
-            ]}
-          >
-            <Input.Password
-              prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
-              placeholder="Password"
-              style={{ borderRadius: 10, height: 48 }}
-            />
-          </Form.Item>
+            required={true}
+            type="password"
+            prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="Password"
+            style={{ borderRadius: 10, height: 48 }}
+          />
 
           <Form.Item style={{ marginBottom: 16 }}>
             <Button

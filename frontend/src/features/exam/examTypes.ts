@@ -11,10 +11,38 @@ export interface ExamInfo {
   updatedAt?: string;
 }
 
+export interface CreateExamRequest {
+  name: string;
+  description?: string;
+  category?: string;
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  published?: boolean;
+}
+
+export interface ExamSearchParams {
+  keyword?: string;
+  category?: string;
+  published?: boolean;
+  page: number;
+  size: number;
+}
+
 export interface QuestionOptionInfo {
   id: number;
   content: string;
   correct?: boolean | null;
+}
+
+export interface CreateQuestionOptionRequest {
+  content: string;
+  correct: boolean;
+}
+
+export interface CreateQuestionRequest {
+  content: string;
+  options: CreateQuestionOptionRequest[];
 }
 
 export interface QuestionInfo {
@@ -30,6 +58,7 @@ export interface StartExamResponse {
   deadline: string;
   durationMinutes: number;
   questions: QuestionInfo[];
+  previousAnswers?: Record<number, number>; // questionId -> selectedOptionId
 }
 
 export interface SubmitAnswerItem {
@@ -53,6 +82,7 @@ export interface StudentSubmissionResult {
   id: number;
   examId: number;
   studentId: number;
+  studentFullName?: string;
   submittedAt: string;
   totalQuestions: number;
   correctCount: number;

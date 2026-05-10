@@ -1,5 +1,10 @@
 import axiosInstance from '../../services/axiosInstance';
-import type { SubmitExamRequest } from './examTypes';
+import type {
+  SubmitExamRequest,
+  ExamSearchParams,
+  CreateExamRequest,
+  CreateQuestionRequest,
+} from './examTypes';
 
 export const examService = {
   // ---- Student ----
@@ -13,21 +18,24 @@ export const examService = {
 
   getLatestResult: (examId: number) => axiosInstance.get(`/submissions/exam/${examId}/latest`),
 
+  getExamSubmissions: (examId: number) => axiosInstance.get(`/submissions/exam/${examId}`),
+
   // ---- Admin ----
-  searchExams: (params: { keyword?: string; category?: string; published?: boolean; page: number; size: number }) =>
-    axiosInstance.get('/exams', { params }),
+  searchExams: (params: ExamSearchParams) => axiosInstance.get('/exams', { params }),
 
-  createExam: (data: any) => axiosInstance.post('/exams', data),
+  createExam: (data: CreateExamRequest) => axiosInstance.post('/exams', data),
 
-  updateExam: (id: number, data: any) => axiosInstance.put(`/exams/${id}`, data),
+  updateExam: (id: number, data: CreateExamRequest) => axiosInstance.put(`/exams/${id}`, data),
 
   deleteExam: (id: number) => axiosInstance.delete(`/exams/${id}`),
 
   listQuestions: (examId: number) => axiosInstance.get(`/questions/exam/${examId}`),
 
-  addQuestion: (examId: number, data: any) => axiosInstance.post(`/questions/exam/${examId}`, data),
+  addQuestion: (examId: number, data: CreateQuestionRequest) =>
+    axiosInstance.post(`/questions/exam/${examId}`, data),
 
-  updateQuestion: (questionId: number, data: any) => axiosInstance.put(`/questions/${questionId}`, data),
+  updateQuestion: (questionId: number, data: CreateQuestionRequest) =>
+    axiosInstance.put(`/questions/${questionId}`, data),
 
   deleteQuestion: (questionId: number) => axiosInstance.delete(`/questions/${questionId}`),
 };

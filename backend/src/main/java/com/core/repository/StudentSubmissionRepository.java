@@ -12,6 +12,10 @@ public interface StudentSubmissionRepository extends JpaRepository<StudentSubmis
 
     Optional<StudentSubmission> findTopByExamIdAndStudentIdOrderBySubmittedAtDesc(Long examId, Long studentId);
 
+    Optional<StudentSubmission> findBySessionId(Long sessionId);
+
     List<StudentSubmission> findByStudentIdOrderBySubmittedAtDesc(Long studentId);
+
+    List<StudentSubmission> findByExamIdOrderBySubmittedAtDesc(Long examId);
 }
 

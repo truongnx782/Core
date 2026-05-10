@@ -1,6 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ExamInfo, StartExamResponse, StudentSubmissionResult, QuestionInfo } from './examTypes';
+import type {
+  ExamInfo,
+  CreateExamRequest,
+  StartExamResponse,
+  StudentSubmissionResult,
+  QuestionInfo,
+  CreateQuestionRequest,
+} from './examTypes';
 
 export interface ExamState {
   available: ExamInfo[];
@@ -16,6 +23,7 @@ export interface ExamState {
   submitting: boolean;
   submitError: string | null;
   latestResult: StudentSubmissionResult | null;
+  examSubmissions: StudentSubmissionResult[];
 
   pagination: { page: number; size: number; totalElements: number; totalPages: number };
 }
@@ -34,6 +42,7 @@ const initialState: ExamState = {
   submitting: false,
   submitError: null,
   latestResult: null,
+  examSubmissions: [],
 
   pagination: { page: 0, size: 10, totalElements: 0, totalPages: 0 },
 };
@@ -88,6 +97,7 @@ const examSlice = createSlice({
     },
 
     fetchQuestionsRequest: (state, _action: PayloadAction<{ examId: number }>) => {
+      // Bắt đầu tải câu hỏi của đề thi
       state.questionLoading = true;
       state.questionError = null;
     },
@@ -100,7 +110,7 @@ const examSlice = createSlice({
       state.questionError = action.payload;
     },
 
-    addQuestionRequest: (state, _action: PayloadAction<{ examId: number; data: any }>) => {
+    addQuestionRequest: (state, _action: PayloadAction<{ examId: number; data: CreateQuestionRequest }>) => {
       state.questionLoading = true;
       state.questionError = null;
     },
@@ -112,7 +122,7 @@ const examSlice = createSlice({
       state.questionError = action.payload;
     },
 
-    updateQuestionRequest: (state, _action: PayloadAction<{ questionId: number; examId: number; data: any }>) => {
+    updateQuestionRequest: (state, _action: PayloadAction<{ questionId: number; examId: number; data: CreateQuestionRequest }>) => {
       state.questionLoading = true;
       state.questionError = null;
     },
@@ -136,7 +146,8 @@ const examSlice = createSlice({
       state.questionError = action.payload;
     },
 
-    createExamRequest: (state, _action: PayloadAction<{ data: any }>) => {
+    createExamRequest: (state, _action: PayloadAction<{ data: CreateExamRequest }>) => {
+      // Bắt đầu tạo đề thi mới
       state.loading = true;
       state.error = null;
     },
@@ -148,7 +159,8 @@ const examSlice = createSlice({
       state.error = action.payload;
     },
 
-    updateExamRequest: (state, _action: PayloadAction<{ id: number; data: any }>) => {
+    updateExamRequest: (state, _action: PayloadAction<{ id: number; data: CreateExamRequest }>) => {
+      // Bắt đầu cập nhật đề thi
       state.loading = true;
       state.error = null;
     },
@@ -184,10 +196,10 @@ const examSlice = createSlice({
     startExamSuccess: (state, action: PayloadAction<StartExamResponse>) => {
       state.loading = false;
       state.taking = action.payload;
-      // initialize answers map
+      // initialize answers map with previous answers if available
       const map: Record<number, number | null> = {};
       action.payload.questions.forEach((q) => {
-        map[q.id] = null;
+        map[q.id] = action.payload.previousAnswers?.[q.id] ?? null;
       });
       state.answersByQuestionId = map;
     },
@@ -218,12 +230,27 @@ const examSlice = createSlice({
     fetchLatestResultRequest: (state, _action: PayloadAction<{ examId: number }>) => {
       state.loading = true;
       state.error = null;
+      state.latestResult = null;
     },
     fetchLatestResultSuccess: (state, action: PayloadAction<StudentSubmissionResult>) => {
       state.loading = false;
       state.latestResult = action.payload;
     },
     fetchLatestResultFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    fetchExamSubmissionsRequest: (state, _action: PayloadAction<{ examId: number }>) => {
+      state.loading = true;
+      state.error = null;
+      state.examSubmissions = [];
+    },
+    fetchExamSubmissionsSuccess: (state, action: PayloadAction<StudentSubmissionResult[]>) => {
+      state.loading = false;
+      state.examSubmissions = action.payload;
+    },
+    fetchExamSubmissionsFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
@@ -277,6 +304,9 @@ export const {
   deleteQuestionRequest,
   deleteQuestionSuccess,
   deleteQuestionFailure,
+  fetchExamSubmissionsRequest,
+  fetchExamSubmissionsSuccess,
+  fetchExamSubmissionsFailure,
   clearExamState,
 } = examSlice.actions;
 

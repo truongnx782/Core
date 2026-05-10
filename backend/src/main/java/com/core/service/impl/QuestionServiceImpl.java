@@ -32,6 +32,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public QuestionResponse addToExam(Long examId, QuestionRequest request) {
+        // Thêm câu hỏi mới và các đáp án liên kết với đề thi
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new EntityNotFoundException("Exam not found"));
 
@@ -58,7 +59,7 @@ public class QuestionServiceImpl implements QuestionService {
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public List<QuestionResponse> listByExam(Long examId) {
         var questions = questionRepository.findByExamIdOrderByIdAsc(examId);
-        // ensure options are loaded for mapping (lazy): fetch via repository per question
+        // Chú ý: lazy load options trước khi chuyển sang response
         questions.forEach(q -> q.setOptions(optionRepository.findByQuestionIdOrderByIdAsc(q.getId())));
         return questionMapper.toResponses(questions);
     }
@@ -67,6 +68,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public QuestionResponse update(Long questionId, QuestionRequest request) {
+        // Cập nhật câu hỏi và thay thế đáp án mà không thay đổi collection đã được quản lý
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new EntityNotFoundException("Question not found"));
 
@@ -95,9 +97,9 @@ public class QuestionServiceImpl implements QuestionService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public void delete(Long questionId) {
+        // Xóa câu hỏi và các tùy chọn liên quan
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new EntityNotFoundException("Question not found"));
-        // options will be removed by orphanRemoval if loaded; ensure removal anyway:
         optionRepository.deleteAll(optionRepository.findByQuestionIdOrderByIdAsc(questionId));
         questionRepository.delete(question);
     }

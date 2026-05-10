@@ -1,20 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Space, Tag, Typography, Button, Skeleton, Form, Input, DatePicker, Switch, InputNumber } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Card, Col, Row, Space, Tag, Typography, Button, Skeleton, Form, Input, DatePicker, Switch, InputNumber, Popconfirm } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import type { AppDispatch, RootState } from '../../../store';
+import type { ExamInfo } from '../examTypes';
 import {
   createExamRequest,
+  deleteExamRequest,
   fetchAvailableExamsRequest,
   fetchAdminExamsRequest,
-  startExamRequest,
   updateExamRequest,
 } from '../examSlice';
 import AppModal from '../../../components/common/AppModal';
+import InputField from '../../../components/common/InputField';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
+/**
+ * Page component for listing available exams to students 
+ * or managing all exams for administrators.
+ * 
+ * Component hiển thị danh sách đề thi cho sinh viên 
+ * hoặc quản lý toàn bộ đề thi cho quản trị viên.
+ */
 const ExamListPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -22,10 +31,13 @@ const ExamListPage: React.FC = () => {
   const user = useSelector((s: RootState) => s.auth.user);
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedExam, setSelectedExam] = useState<any>(null);
+  const [selectedExam, setSelectedExam] = useState<ExamInfo | null>(null);
   const [form] = Form.useForm();
 
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'MANAGER';
+  const isAdmin = useMemo(
+    () => user?.role === 'ADMIN' || user?.role === 'MANAGER',
+    [user?.role]
+  );
 
   useEffect(() => {
     if (isAdmin) {
@@ -51,7 +63,7 @@ const ExamListPage: React.FC = () => {
     setModalOpen(true);
   };
 
-  const openEditModal = (exam: any) => {
+  const openEditModal = (exam: ExamInfo) => {
     setSelectedExam(exam);
     setIsEditMode(true);
     form.setFieldsValue({
@@ -116,7 +128,7 @@ const ExamListPage: React.FC = () => {
           {(isAdmin ? adminList : available).map((exam) => {
             const start = dayjs(exam.startTime);
             const end = dayjs(exam.endTime);
-            const isOpen = now.isAfter(start) && now.isBefore(end);
+            const isOpen = !now.isBefore(start) && now.isBefore(end);
             return (
               <Col xs={24} md={12} lg={8} key={exam.id}>
                 <Card style={{ borderRadius: 12 }} hoverable>
@@ -129,15 +141,12 @@ const ExamListPage: React.FC = () => {
                     <Text>
                       Thời gian mở: {start.format('DD/MM/YYYY HH:mm')} → {end.format('DD/MM/YYYY HH:mm')}
                     </Text>
-                    <Text>Duration: {exam.durationMinutes} phút</Text>
+                    <Text>Thời lượng: {exam.durationMinutes} phút</Text>
                     <Space wrap>
                       <Button
                         type="primary"
                         disabled={!isOpen}
-                        onClick={() => {
-                          dispatch(startExamRequest({ examId: exam.id }));
-                          navigate(`/dashboard/exams/${exam.id}/take`);
-                        }}
+                        onClick={() => navigate(`/dashboard/exams/${exam.id}/take`)}
                       >
                         Làm bài
                       </Button>
@@ -152,6 +161,16 @@ const ExamListPage: React.FC = () => {
                           <Button type="default" onClick={() => navigate(`/dashboard/exams/${exam.id}/questions`)}>
                             Quản lý câu hỏi
                           </Button>
+                          <Popconfirm
+                            title="Bạn có muốn xóa đề này không?"
+                            onConfirm={() => dispatch(deleteExamRequest(exam.id))}
+                            okText="Xóa"
+                            cancelText="Hủy"
+                          >
+                            <Button danger type="default">
+                              Xóa
+                            </Button>
+                          </Popconfirm>
                         </>
                       )}
                     </Space>
@@ -174,21 +193,19 @@ const ExamListPage: React.FC = () => {
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item
+              <InputField
                 name="name"
                 label="Tên đề thi"
-                rules={[{ required: true, message: 'Vui lòng nhập tên đề thi' }]}
-              >
-                <Input placeholder="Nhập tên đề thi" />
-              </Form.Item>
+                required={true}
+                placeholder="Nhập tên đề thi"
+              />
             </Col>
             <Col span={12}>
-              <Form.Item
+              <InputField
                 name="category"
                 label="Chuyên đề"
-              >
-                <Input placeholder="Nhập chuyên đề (tùy chọn)" />
-              </Form.Item>
+                placeholder="Nhập chuyên đề (tùy chọn)"
+              />
             </Col>
           </Row>
 

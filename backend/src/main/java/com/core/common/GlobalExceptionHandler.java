@@ -75,6 +75,14 @@ public class GlobalExceptionHandler {
                 .body(BaseResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<BaseResponse<Void>> handleIllegalState(IllegalStateException ex) {
+        log.warn("Illegal state: {}", ex.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(BaseResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<Void>> handleGeneral(Exception ex) {
         log.error("Unexpected error occurred", ex);

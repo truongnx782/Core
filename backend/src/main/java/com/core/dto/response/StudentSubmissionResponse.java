@@ -1,5 +1,6 @@
 package com.core.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,8 @@ public class StudentSubmissionResponse {
     private Long id;
     private Long examId;
     private Long studentId;
+    private String studentFullName;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime submittedAt;
     private Integer totalQuestions;
     private Integer correctCount;

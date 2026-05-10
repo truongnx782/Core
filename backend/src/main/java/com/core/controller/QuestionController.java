@@ -26,6 +26,7 @@ public class QuestionController {
             @PathVariable Long examId,
             @Valid @RequestBody QuestionRequest request
     ) {
+        // Thêm câu hỏi vào đề thi, chỉ admin/manager được phép
         QuestionResponse created = questionService.addToExam(examId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("Question created", created));
     }
@@ -42,6 +43,7 @@ public class QuestionController {
             @PathVariable Long questionId,
             @Valid @RequestBody QuestionRequest request
     ) {
+        // Cập nhật câu hỏi hiện có
         return ResponseEntity.ok(BaseResponse.success("Question updated", questionService.update(questionId, request)));
     }
 

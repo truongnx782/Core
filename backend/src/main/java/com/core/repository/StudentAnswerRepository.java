@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface StudentAnswerRepository extends JpaRepository<StudentAnswer, Long> {
     List<StudentAnswer> findBySubmissionIdOrderByIdAsc(Long submissionId);
+
+    void deleteBySubmissionId(Long submissionId);
 }
 

@@ -1,218 +1,181 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { put, select, takeLatest } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { message } from 'antd';
 import { examService } from './examService';
 import {
-  fetchAvailableExamsRequest,
-  fetchAvailableExamsSuccess,
-  fetchAvailableExamsFailure,
-  fetchAdminExamsRequest,
-  fetchAdminExamsSuccess,
-  fetchAdminExamsFailure,
-  createExamRequest,
-  createExamSuccess,
-  createExamFailure,
-  updateExamRequest,
-  updateExamSuccess,
-  updateExamFailure,
-  deleteExamRequest,
-  deleteExamSuccess,
-  deleteExamFailure,
-  fetchQuestionsRequest,
-  fetchQuestionsSuccess,
-  fetchQuestionsFailure,
-  addQuestionRequest,
-  addQuestionSuccess,
-  addQuestionFailure,
-  updateQuestionRequest,
-  updateQuestionSuccess,
-  updateQuestionFailure,
-  deleteQuestionRequest,
-  deleteQuestionSuccess,
-  deleteQuestionFailure,
-  startExamRequest,
-  startExamSuccess,
-  startExamFailure,
-  submitExamRequest,
-  submitExamSuccess,
-  submitExamFailure,
-  fetchLatestResultRequest,
-  fetchLatestResultSuccess,
-  fetchLatestResultFailure,
+  fetchAvailableExamsRequest, fetchAvailableExamsSuccess, fetchAvailableExamsFailure,
+  fetchAdminExamsRequest, fetchAdminExamsSuccess, fetchAdminExamsFailure,
+  createExamRequest, createExamSuccess, createExamFailure,
+  updateExamRequest, updateExamSuccess, updateExamFailure,
+  deleteExamRequest, deleteExamSuccess, deleteExamFailure,
+  fetchQuestionsRequest, fetchQuestionsSuccess, fetchQuestionsFailure,
+  addQuestionRequest, addQuestionSuccess, addQuestionFailure,
+  updateQuestionRequest, updateQuestionSuccess, updateQuestionFailure,
+  deleteQuestionRequest, deleteQuestionSuccess, deleteQuestionFailure,
+  startExamRequest, startExamSuccess, startExamFailure,
+  submitExamRequest, submitExamSuccess, submitExamFailure,
+  fetchLatestResultRequest, fetchLatestResultSuccess, fetchLatestResultFailure,
+  fetchExamSubmissionsRequest, fetchExamSubmissionsSuccess, fetchExamSubmissionsFailure,
 } from './examSlice';
 import type { RootState } from '../../store';
-import type { AxiosResponse } from 'axios';
+import type { CreateExamRequest, CreateQuestionRequest } from './examTypes';
+import { apiSaga } from '../../store/sagaHelper';
 
 function* handleFetchAvailable(action: PayloadAction<{ page: number; size: number }>) {
-  try {
-    const response: AxiosResponse = yield call(examService.getAvailableExams, action.payload);
-    const pageData = response.data.data;
-    yield put(
-      fetchAvailableExamsSuccess({
-        exams: pageData.content,
-        page: pageData.page,
-        size: pageData.size,
-        totalElements: pageData.totalElements,
-        totalPages: pageData.totalPages,
-      })
-    );
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to load exams';
-    yield put(fetchAvailableExamsFailure(msg));
-  }
+  yield* apiSaga({
+    apiMethod: examService.getAvailableExams,
+    actionPayload: action.payload,
+    onFailure: fetchAvailableExamsFailure,
+    errorMessage: 'Failed to load exams',
+    callback: function* (pageData: any) {
+      yield put(fetchAvailableExamsSuccess({
+        exams: pageData.content, page: pageData.page, size: pageData.size,
+        totalElements: pageData.totalElements, totalPages: pageData.totalPages,
+      }));
+    }
+  });
 }
 
 function* handleFetchAdminExams(action: PayloadAction<{ page: number; size: number }>) {
-  try {
-    const response: AxiosResponse = yield call(examService.searchExams, action.payload);
-    const pageData = response.data.data;
-    yield put(
-      fetchAdminExamsSuccess({
-        exams: pageData.content,
-        page: pageData.page,
-        size: pageData.size,
-        totalElements: pageData.totalElements,
-        totalPages: pageData.totalPages,
-      })
-    );
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to load exams';
-    yield put(fetchAdminExamsFailure(msg));
-  }
+  yield* apiSaga({
+    apiMethod: examService.searchExams,
+    actionPayload: action.payload,
+    onFailure: fetchAdminExamsFailure,
+    errorMessage: 'Failed to load exams',
+    callback: function* (pageData: any) {
+      yield put(fetchAdminExamsSuccess({
+        exams: pageData.content, page: pageData.page, size: pageData.size,
+        totalElements: pageData.totalElements, totalPages: pageData.totalPages,
+      }));
+    }
+  });
 }
 
 function* handleFetchQuestions(action: PayloadAction<{ examId: number }>) {
-  try {
-    const response: AxiosResponse = yield call(examService.listQuestions, action.payload.examId);
-    yield put(fetchQuestionsSuccess(response.data.data));
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to load questions';
-    yield put(fetchQuestionsFailure(msg));
-  }
+  yield* apiSaga({
+    apiMethod: examService.listQuestions,
+    actionPayload: action.payload.examId,
+    onSuccess: fetchQuestionsSuccess,
+    onFailure: fetchQuestionsFailure,
+    errorMessage: 'Failed to load questions'
+  });
 }
 
-function* handleAddQuestion(action: PayloadAction<{ examId: number; data: any }>) {
-  try {
-    yield call(examService.addQuestion, action.payload.examId, action.payload.data);
-    yield put(addQuestionSuccess());
-    yield put(fetchQuestionsRequest({ examId: action.payload.examId }));
-    message.success('Question added successfully');
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to add question';
-    yield put(addQuestionFailure(msg));
-    message.error(msg);
-  }
+function* handleAddQuestion(action: PayloadAction<{ examId: number; data: CreateQuestionRequest }>) {
+  yield* apiSaga({
+    apiMethod: () => examService.addQuestion(action.payload.examId, action.payload.data),
+    onSuccess: addQuestionSuccess,
+    onFailure: addQuestionFailure,
+    successMessage: 'Question added successfully',
+    errorMessage: 'Failed to add question',
+    callback: function* () { yield put(fetchQuestionsRequest({ examId: action.payload.examId })); }
+  });
 }
 
-function* handleUpdateQuestion(action: PayloadAction<{ questionId: number; examId: number; data: any }>) {
-  try {
-    yield call(examService.updateQuestion, action.payload.questionId, action.payload.data);
-    yield put(updateQuestionSuccess());
-    yield put(fetchQuestionsRequest({ examId: action.payload.examId }));
-    message.success('Question updated successfully');
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to update question';
-    yield put(updateQuestionFailure(msg));
-    message.error(msg);
-  }
+function* handleUpdateQuestion(action: PayloadAction<{ questionId: number; examId: number; data: CreateQuestionRequest }>) {
+  yield* apiSaga({
+    apiMethod: () => examService.updateQuestion(action.payload.questionId, action.payload.data),
+    onSuccess: updateQuestionSuccess,
+    onFailure: updateQuestionFailure,
+    successMessage: 'Question updated successfully',
+    errorMessage: 'Failed to update question',
+    callback: function* () { yield put(fetchQuestionsRequest({ examId: action.payload.examId })); }
+  });
 }
 
 function* handleDeleteQuestion(action: PayloadAction<{ questionId: number; examId: number }>) {
-  try {
-    yield call(examService.deleteQuestion, action.payload.questionId);
-    yield put(deleteQuestionSuccess());
-    yield put(fetchQuestionsRequest({ examId: action.payload.examId }));
-    message.success('Question deleted successfully');
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to delete question';
-    yield put(deleteQuestionFailure(msg));
-    message.error(msg);
-  }
+  yield* apiSaga({
+    apiMethod: () => examService.deleteQuestion(action.payload.questionId),
+    onSuccess: deleteQuestionSuccess,
+    onFailure: deleteQuestionFailure,
+    successMessage: 'Question deleted successfully',
+    errorMessage: 'Failed to delete question',
+    callback: function* () { yield put(fetchQuestionsRequest({ examId: action.payload.examId })); }
+  });
 }
 
-function* handleCreateExam(action: PayloadAction<{ data: any }>) {
-  try {
-    yield call(examService.createExam, action.payload.data);
-    yield put(createExamSuccess());
-    yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
-    message.success('Created new exam successfully');
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to create exam';
-    yield put(createExamFailure(msg));
-    message.error(msg);
-  }
+function* handleCreateExam(action: PayloadAction<{ data: CreateExamRequest }>) {
+  yield* apiSaga({
+    apiMethod: examService.createExam,
+    actionPayload: action.payload.data,
+    onSuccess: createExamSuccess,
+    onFailure: createExamFailure,
+    successMessage: 'Created new exam successfully',
+    errorMessage: 'Failed to create exam',
+    callback: function* () { yield put(fetchAdminExamsRequest({ page: 0, size: 20 })); }
+  });
 }
 
-function* handleUpdateExam(action: PayloadAction<{ id: number; data: any }>) {
-  try {
-    yield call(examService.updateExam, action.payload.id, action.payload.data);
-    yield put(updateExamSuccess());
-    yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
-    message.success('Exam updated successfully');
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to update exam';
-    yield put(updateExamFailure(msg));
-    message.error(msg);
-  }
+function* handleUpdateExam(action: PayloadAction<{ id: number; data: CreateExamRequest }>) {
+  yield* apiSaga({
+    apiMethod: () => examService.updateExam(action.payload.id, action.payload.data),
+    onSuccess: updateExamSuccess,
+    onFailure: updateExamFailure,
+    successMessage: 'Exam updated successfully',
+    errorMessage: 'Failed to update exam',
+    callback: function* () { yield put(fetchAdminExamsRequest({ page: 0, size: 20 })); }
+  });
 }
 
 function* handleDeleteExam(action: PayloadAction<number>) {
-  try {
-    yield call(examService.deleteExam, action.payload);
-    yield put(deleteExamSuccess());
-    yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
-    message.success('Exam deleted successfully');
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to delete exam';
-    yield put(deleteExamFailure(msg));
-    message.error(msg);
-  }
+  yield* apiSaga({
+    apiMethod: () => examService.deleteExam(action.payload),
+    onSuccess: deleteExamSuccess,
+    onFailure: deleteExamFailure,
+    successMessage: 'Exam deleted successfully',
+    errorMessage: 'Failed to delete exam',
+    callback: function* () { yield put(fetchAdminExamsRequest({ page: 0, size: 20 })); }
+  });
 }
 
 function* handleStartExam(action: PayloadAction<{ examId: number }>) {
-  try {
-    const response: AxiosResponse = yield call(examService.startExam, action.payload.examId);
-    yield put(startExamSuccess(response.data.data));
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to start exam';
-    yield put(startExamFailure(msg));
-    message.error(msg);
-  }
+  yield* apiSaga({
+    apiMethod: examService.startExam,
+    actionPayload: action.payload.examId,
+    onSuccess: startExamSuccess,
+    onFailure: startExamFailure,
+    errorMessage: 'Failed to start exam'
+  });
 }
 
 function* handleSubmitExam(action: PayloadAction<{ examId: number }>) {
-  try {
-    const state: RootState = yield select();
-    const taking = state.exam.taking;
-    if (!taking) throw new Error('No active exam session');
-
-    const answers = Object.entries(state.exam.answersByQuestionId).map(([qId, optId]) => ({
-      questionId: Number(qId),
-      selectedOptionId: optId,
-    }));
-
-    const response: AxiosResponse = yield call(examService.submitExam, action.payload.examId, {
-      sessionId: taking.sessionId,
-      answers,
-    });
-
-    yield put(submitExamSuccess(response.data.data));
-    message.success('Submitted');
-  } catch (error: any) {
-    const msg = error.response?.data?.message || error.message || 'Failed to submit';
-    yield put(submitExamFailure(msg));
-    message.error(msg);
+  const state: RootState = yield select();
+  const taking = state.exam.taking;
+  if (!taking) {
+    yield put(submitExamFailure('No active exam session'));
+    return;
   }
+  const answers = Object.entries(state.exam.answersByQuestionId).map(([qId, optId]) => ({
+    questionId: Number(qId),
+    selectedOptionId: optId as number,
+  }));
+
+  yield* apiSaga({
+    apiMethod: () => examService.submitExam(action.payload.examId, { sessionId: taking.sessionId, answers }),
+    onSuccess: submitExamSuccess,
+    onFailure: submitExamFailure,
+    successMessage: 'Submitted',
+    errorMessage: 'Failed to submit'
+  });
 }
 
 function* handleFetchLatestResult(action: PayloadAction<{ examId: number }>) {
-  try {
-    const response: AxiosResponse = yield call(examService.getLatestResult, action.payload.examId);
-    yield put(fetchLatestResultSuccess(response.data.data));
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to load result';
-    yield put(fetchLatestResultFailure(msg));
-  }
+  yield* apiSaga({
+    apiMethod: examService.getLatestResult,
+    actionPayload: action.payload.examId,
+    onSuccess: fetchLatestResultSuccess,
+    onFailure: fetchLatestResultFailure,
+    errorMessage: 'Failed to load result' // pass null for no toast if needed
+  });
+}
+
+function* handleFetchExamSubmissions(action: PayloadAction<{ examId: number }>) {
+  yield* apiSaga({
+    apiMethod: examService.getExamSubmissions,
+    actionPayload: action.payload.examId,
+    onSuccess: fetchExamSubmissionsSuccess,
+    onFailure: fetchExamSubmissionsFailure,
+    errorMessage: 'Failed to load submissions'
+  });
 }
 
 export default function* examSaga() {
@@ -228,5 +191,5 @@ export default function* examSaga() {
   yield takeLatest(startExamRequest.type, handleStartExam);
   yield takeLatest(submitExamRequest.type, handleSubmitExam);
   yield takeLatest(fetchLatestResultRequest.type, handleFetchLatestResult);
+  yield takeLatest(fetchExamSubmissionsRequest.type, handleFetchExamSubmissions);
 }
-

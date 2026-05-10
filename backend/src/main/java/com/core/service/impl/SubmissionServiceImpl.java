@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,8 +60,12 @@ public class SubmissionServiceImpl implements SubmissionService {
         LocalDateTime deadline = session.getExpiresAt().isBefore(exam.getEndTime())
                 ? session.getExpiresAt()
                 : exam.getEndTime();
-        if (now.isAfter(deadline)) {
-            session.setStatus(ExamSession.SessionStatus.EXPIRED);
+
+        boolean finalSubmission = !now.isBefore(deadline);
+        if (finalSubmission && session.getStatus() != ExamSession.SessionStatus.SUBMITTED) {
+            session.setSubmittedAt(now);
+            session.setStatus(ExamSession.SessionStatus.SUBMITTED);
+            sessionRepository.save(session);
         }
 
         User student = userRepository.findById(studentId)
@@ -107,10 +112,22 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         double score = round2(((double) correct / (double) total) * 10.0);
 
-        StudentSubmission submission = new StudentSubmission();
-        submission.setExam(exam);
-        submission.setStudent(student);
-        submission.setSession(session);
+        Optional<StudentSubmission> existingSubmissionOpt = submissionRepository.findBySessionId(session.getId());
+        StudentSubmission submission;
+        if (existingSubmissionOpt.isPresent()) {
+            submission = existingSubmissionOpt.get();
+            if (session.getStatus() == ExamSession.SessionStatus.SUBMITTED) {
+                return toResponse(submission);
+            }
+            answerRepository.deleteBySubmissionId(submission.getId());
+            submission.getAnswers().clear();
+        } else {
+            submission = new StudentSubmission();
+            submission.setExam(exam);
+            submission.setStudent(student);
+            submission.setSession(session);
+        }
+
         submission.setSubmittedAt(now);
         submission.setTotalQuestions(total);
         submission.setCorrectCount(correct);
@@ -135,11 +152,6 @@ public class SubmissionServiceImpl implements SubmissionService {
             answerRepository.save(ans);
         }
 
-        // close session
-        session.setSubmittedAt(now);
-        session.setStatus(ExamSession.SessionStatus.SUBMITTED);
-        sessionRepository.save(session);
-
         // Return review response (includes correctOptionId per question)
         return toResponse(submission);
     }
@@ -148,6 +160,22 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Transactional(readOnly = true)
     public StudentSubmissionResponse getMyLatestResult(Long examId) {
         Long studentId = SecurityUtils.getCurrentUserId();
+
+        ExamSession session = sessionRepository.findTopByExamIdAndStudentIdOrderByStartedAtDesc(examId, studentId)
+                .orElseThrow(() -> new EntityNotFoundException("Session not found"));
+
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new EntityNotFoundException("Exam not found"));
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime deadline = session.getExpiresAt().isBefore(exam.getEndTime())
+                ? session.getExpiresAt()
+                : exam.getEndTime();
+
+        if (session.getStatus() == ExamSession.SessionStatus.IN_PROGRESS && now.isBefore(deadline)) {
+            throw new IllegalStateException("Kết quả chỉ xem được sau khi hết giờ làm bài.");
+        }
+
         StudentSubmission submission = submissionRepository.findTopByExamIdAndStudentIdOrderBySubmittedAtDesc(examId, studentId)
                 .orElseThrow(() -> new EntityNotFoundException("Submission not found"));
         return toResponse(submission);
@@ -161,6 +189,23 @@ public class SubmissionServiceImpl implements SubmissionService {
         // (simple for now; can optimize with query later)
         return submissionRepository.findByStudentIdOrderBySubmittedAtDesc(studentId).stream()
                 .filter(s -> Objects.equals(s.getExam().getId(), examId))
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<StudentSubmissionResponse> getExamSubmissions(Long examId) {
+        // Return latest submission per student to avoid showing intermediate saves.
+        return submissionRepository.findByExamIdOrderBySubmittedAtDesc(examId).stream()
+                .collect(Collectors.toMap(
+                        s -> s.getStudent().getId(),
+                        Function.identity(),
+                        (existing, newer) -> existing,
+                        LinkedHashMap::new
+                ))
+                .values()
+                .stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -201,6 +246,7 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .id(submission.getId())
                 .examId(submission.getExam().getId())
                 .studentId(submission.getStudent().getId())
+                .studentFullName(submission.getStudent().getFullName())
                 .submittedAt(submission.getSubmittedAt())
                 .totalQuestions(submission.getTotalQuestions())
                 .correctCount(submission.getCorrectCount())

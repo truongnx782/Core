@@ -7,6 +7,7 @@ import com.core.service.SubmissionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,12 @@ public class SubmissionController {
     @GetMapping("/exam/{examId}/latest")
     public ResponseEntity<BaseResponse<StudentSubmissionResponse>> myLatest(@PathVariable Long examId) {
         return ResponseEntity.ok(BaseResponse.success(submissionService.getMyLatestResult(examId)));
+    }
+
+    @GetMapping("/exam/{examId}")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public ResponseEntity<BaseResponse<List<StudentSubmissionResponse>>> examSubmissions(@PathVariable Long examId) {
+        return ResponseEntity.ok(BaseResponse.success(submissionService.getExamSubmissions(examId)));
     }
 
     @GetMapping("/exam/{examId}/history")

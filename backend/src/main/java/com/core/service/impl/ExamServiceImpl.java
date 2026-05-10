@@ -9,10 +9,7 @@ import com.core.dto.response.StartExamResponse;
 import com.core.entity.Exam;
 import com.core.entity.ExamSession;
 import com.core.entity.User;
-import com.core.repository.ExamRepository;
-import com.core.repository.ExamSessionRepository;
-import com.core.repository.QuestionRepository;
-import com.core.repository.UserRepository;
+import com.core.repository.*;
 import com.core.service.ExamService;
 import com.core.util.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +35,7 @@ public class ExamServiceImpl implements ExamService {
     private final ExamSessionRepository examSessionRepository;
     private final QuestionRepository questionRepository;
     private final UserRepository userRepository;
+    private final StudentSubmissionRepository studentSubmissionRepository;
     private final ExamMapper examMapper;
     private final QuestionMapper questionMapper;
 
@@ -45,6 +45,7 @@ public class ExamServiceImpl implements ExamService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ExamResponse create(ExamRequest request) {
+        // Validate thời gian trước khi tạo đề thi
         validateTime(request.getStartTime(), request.getEndTime(), request.getDurationMinutes());
         Exam exam = examMapper.toEntity(request);
         if (request.getPublished() != null) {
@@ -58,6 +59,7 @@ public class ExamServiceImpl implements ExamService {
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ExamResponse update(Long id, ExamRequest request) {
+        // Cập nhật thông tin đề thi
         Exam exam = findExamOrThrow(id);
         validateTime(request.getStartTime(), request.getEndTime(), request.getDurationMinutes());
         examMapper.update(exam, request);
@@ -111,7 +113,7 @@ public class ExamServiceImpl implements ExamService {
             throw new IllegalArgumentException("Exam is not published");
         }
 
-        // Time-window validation uses server time (avoid client clock issues)
+        // Kiểm tra thời gian bài thi theo giờ server để tránh lệch đồng hồ client
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(exam.getStartTime())) {
             throw new IllegalArgumentException("Exam is not open yet");
@@ -124,11 +126,15 @@ public class ExamServiceImpl implements ExamService {
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Reuse existing latest session if still IN_PROGRESS, else create new
-        ExamSession session = examSessionRepository
-                .findTopByExamIdAndStudentIdOrderByStartedAtDesc(examId, studentId)
+        // Tái sử dụng session đang IN_PROGRESS,
+        // nếu đã SUBMITTED thì không cho làm lại trong cùng kỳ thi.
+        var previousSession = examSessionRepository.findTopByExamIdAndStudentIdOrderByStartedAtDesc(examId, studentId);
+        ExamSession session = previousSession
                 .filter(s -> s.getStatus() == ExamSession.SessionStatus.IN_PROGRESS)
                 .orElseGet(() -> {
+                    if (previousSession.isPresent() && previousSession.get().getStatus() == ExamSession.SessionStatus.SUBMITTED) {
+                        throw new IllegalArgumentException("Bạn đã nộp bài thi này. Không thể làm lại.");
+                    }
                     ExamSession s = new ExamSession();
                     s.setExam(exam);
                     s.setStudent(student);
@@ -138,17 +144,28 @@ public class ExamServiceImpl implements ExamService {
                     return examSessionRepository.save(s);
                 });
 
-        // Actual deadline: min(session.expiresAt, exam.endTime)
+        // Deadline thực tế là thời hạn sớm nhất giữa expiresAt và endTime
         LocalDateTime deadline = session.getExpiresAt().isBefore(exam.getEndTime())
                 ? session.getExpiresAt()
                 : exam.getEndTime();
 
-        // If deadline has passed, exam time is over
         if (deadline.isBefore(now) || deadline.isEqual(now)) {
             throw new IllegalArgumentException("Exam time has expired");
         }
 
         var questions = questionRepository.findByExamIdOrderByIdAsc(examId);
+
+        // Fetch previous answers if any submission exists
+        Map<Long, Long> previousAnswers = new HashMap<>();
+        studentSubmissionRepository.findTopByExamIdAndStudentIdOrderBySubmittedAtDesc(examId, studentId)
+                .ifPresent(submission -> {
+                    submission.getAnswers().forEach(answer -> {
+                        if (answer.getSelectedOption() != null) {
+                            previousAnswers.put(answer.getQuestion().getId(), answer.getSelectedOption().getId());
+                        }
+                    });
+                });
+
         return StartExamResponse.builder()
                 .examId(examId)
                 .sessionId(session.getId())
@@ -156,6 +173,7 @@ public class ExamServiceImpl implements ExamService {
                 .deadline(deadline)
                 .durationMinutes(exam.getDurationMinutes())
                 .questions(questionMapper.toStudentQuestionResponses(questions))
+                .previousAnswers(previousAnswers)
                 .build();
     }
 

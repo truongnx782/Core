@@ -31,13 +31,9 @@ export interface AuthResponse {
   user: UserInfo;
 }
 
-export interface BaseResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-  errors?: Record<string, string>;
-  timestamp: string;
-}
+import type { BaseResponse } from '../../types/common';
+
+export type { BaseResponse };
 
 // ---- Auth State ----
 export interface AuthState {

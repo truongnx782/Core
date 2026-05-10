@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Card, Col, Radio, Row, Space, Typography, Button, Alert, Divider, message } from 'antd';
+import { Card, Col, Radio, Row, Space, Typography, Button, Alert, Divider } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import type { AppDispatch, RootState } from '../../../store';
-import { setAnswer, startExamRequest, submitExamRequest } from '../examSlice';
+import { clearExamState, setAnswer, startExamRequest, submitExamRequest } from '../examSlice';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
@@ -17,7 +17,7 @@ function formatRemaining(seconds: number) {
 const ExamTakingPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const examId = Number(id);
 
   const { taking, answersByQuestionId, loading, submitting, latestResult, error } = useSelector(
@@ -27,6 +27,21 @@ const ExamTakingPage: React.FC = () => {
   const [remainingSec, setRemainingSec] = useState<number>(0);
   const submittedRef = useRef(false);
   const initialLoadRef = useRef(true);
+  const shouldRedirectAfterSubmitRef = useRef(false);
+
+  // Reset state mỗi khi phiên làm bài mới được tải
+  useEffect(() => {
+    if (taking) {
+      submittedRef.current = false;
+      initialLoadRef.current = true;
+      shouldRedirectAfterSubmitRef.current = false;
+    }
+  }, [taking]);
+
+  // Reset exam state when the route changes or the page is loaded
+  useEffect(() => {
+    dispatch(clearExamState());
+  }, [dispatch, examId]);
 
   // Ensure session loaded (deep link case)
   useEffect(() => {
@@ -38,7 +53,7 @@ const ExamTakingPage: React.FC = () => {
   const deadline = useMemo(() => (taking ? dayjs(taking.deadline) : null), [taking]);
   const serverTimeAtStart = useMemo(() => (taking ? dayjs(taking.serverTime) : null), [taking]);
 
-  // Countdown using server time as reference to avoid client clock issues
+  // Countdown sử dụng serverTime làm tham chiếu để tránh lệch giờ client
   useEffect(() => {
     if (!deadline || !serverTimeAtStart) return;
 
@@ -52,32 +67,29 @@ const ExamTakingPage: React.FC = () => {
       setRemainingSec(remain);
       if (initialLoadRef.current) {
         initialLoadRef.current = false;
-        // Warn if less than 1 minute left
-        if (remain > 0 && remain <= 60) {
-          message.warning('Thời gian làm bài còn dưới 1 phút!');
-        }
       }
     }, 500);
 
     return () => clearInterval(timer);
   }, [deadline, serverTimeAtStart]);
 
-  // Auto-submit when time runs out (not on initial load)
+  // Tự động nộp khi thời gian hết thực sự, không thực hiện trên lần tải đầu
   useEffect(() => {
     if (!taking) return;
     if (remainingSec > 0) return;
     if (submittedRef.current) return;
-    if (initialLoadRef.current) return; // Skip on initial load
+    if (initialLoadRef.current) return;
     submittedRef.current = true;
+    shouldRedirectAfterSubmitRef.current = true;
     dispatch(submitExamRequest({ examId }));
   }, [dispatch, remainingSec, taking, examId]);
 
-  // After submit success, redirect to result
+  // Redirect to exam list after any successful submission in this session
   useEffect(() => {
-    if (latestResult && !submitting) {
-      navigate(`/dashboard/exams/${examId}/result`, { replace: true });
+    if (latestResult && !submitting && shouldRedirectAfterSubmitRef.current) {
+      navigate('/dashboard/exams', { replace: true });
     }
-  }, [latestResult, submitting, navigate, examId]);
+  }, [latestResult, submitting, navigate]);
 
   if (error) {
     return <Alert type="error" message={error} showIcon />;
@@ -141,7 +153,10 @@ const ExamTakingPage: React.FC = () => {
               <Button
                 type="primary"
                 loading={submitting}
-                onClick={() => dispatch(submitExamRequest({ examId }))}
+                onClick={() => {
+                  shouldRedirectAfterSubmitRef.current = true;
+                  dispatch(submitExamRequest({ examId }));
+                }}
               >
                 Nộp bài
               </Button>

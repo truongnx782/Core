@@ -21,7 +21,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Spring Security configuration for stateless JWT-based authentication.
+ * Spring Security configuration.
+ * Cấu hình bảo mật của Spring Security: phân quyền endpoint, JWT filter, CORS.
  */
 @Configuration
 @EnableWebSecurity
@@ -32,6 +33,10 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsServiceImpl userDetailsService;
 
+    /**
+     * Define security filter chain.
+     * Cấu hình chuỗi bộ lọc bảo mật, vô hiệu hoá CSRF, thiết lập session stateless.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

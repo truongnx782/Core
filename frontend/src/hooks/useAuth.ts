@@ -10,6 +10,7 @@ import {
 
 /**
  * Custom hook providing auth state and helpers.
+ * Hook tuỳ chỉnh cung cấp trạng thái xác thực (auth state) và các hàm tiện ích (login, logout, register).
  */
 export function useAuth() {
   const dispatch = useDispatch<AppDispatch>();

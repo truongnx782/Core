@@ -25,6 +25,7 @@ public class ExamController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<BaseResponse<ExamResponse>> create(@Valid @RequestBody ExamRequest request) {
+        // Tạo mới đề thi, chỉ admin/manager mới được phép
         ExamResponse created = examService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("Exam created", created));
     }
@@ -32,6 +33,7 @@ public class ExamController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseEntity<BaseResponse<ExamResponse>> update(@PathVariable Long id, @Valid @RequestBody ExamRequest request) {
+        // Cập nhật thông tin đề thi
         return ResponseEntity.ok(BaseResponse.success("Exam updated", examService.update(id, request)));
     }
 
@@ -66,6 +68,7 @@ public class ExamController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
+        // Danh sách đề thi cho học sinh, chỉ hiển thị đề đã công bố và trong khoảng thời gian mở
         return ResponseEntity.ok(BaseResponse.success(examService.listAvailableForStudent(page, size)));
     }
 

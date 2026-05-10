@@ -28,14 +28,9 @@ export interface UserFilterParams {
 }
 
 // ---- Response Types ----
-export interface PageResponse<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-}
+import type { PageResponse } from '../../types/common';
+
+export type { PageResponse };
 
 // ---- User State ----
 export interface UserState {

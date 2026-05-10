@@ -20,24 +20,26 @@ import type { UserFilterParams, CreateUserRequest, UpdateUserRequest } from './u
 import type { RootState } from '../../store';
 import type { AxiosResponse } from 'axios';
 
+import { apiSaga } from '../../store/sagaHelper';
+
 // ---- Fetch Users ----
 function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
-  try {
-    const response: AxiosResponse = yield call(userService.getUsers, action.payload);
-    const pageData = response.data.data;
-    yield put(
-      fetchUsersSuccess({
-        users: pageData.content,
-        page: pageData.page,
-        size: pageData.size,
-        totalElements: pageData.totalElements,
-        totalPages: pageData.totalPages,
-      })
-    );
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to fetch users';
-    yield put(fetchUsersFailure(msg));
-  }
+  yield* apiSaga({
+    apiMethod: userService.getUsers,
+    actionPayload: action.payload,
+    errorMessage: 'Failed to fetch users',
+    callback: function* (pageData: any) {
+      yield put(
+        fetchUsersSuccess({
+          users: pageData.content,
+          page: pageData.page,
+          size: pageData.size,
+          totalElements: pageData.totalElements,
+          totalPages: pageData.totalPages,
+        })
+      );
+    }
+  });
 }
 
 // Helper: re-fetch current page after mutation
@@ -56,44 +58,39 @@ function* refetchUsers() {
 
 // ---- Create User ----
 function* handleCreateUser(action: PayloadAction<CreateUserRequest>) {
-  try {
-    yield call(userService.createUser, action.payload);
-    yield put(createUserSuccess());
-    message.success('User created successfully');
-    yield* refetchUsers();
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to create user';
-    yield put(createUserFailure(msg));
-    message.error(msg);
-  }
+  yield* apiSaga({
+    apiMethod: userService.createUser,
+    actionPayload: action.payload,
+    onSuccess: createUserSuccess,
+    onFailure: createUserFailure,
+    successMessage: 'User created successfully',
+    errorMessage: 'Failed to create user',
+    callback: refetchUsers
+  });
 }
 
 // ---- Update User ----
 function* handleUpdateUser(action: PayloadAction<{ id: number; data: UpdateUserRequest }>) {
-  try {
-    yield call(userService.updateUser, action.payload.id, action.payload.data);
-    yield put(updateUserSuccess());
-    message.success('User updated successfully');
-    yield* refetchUsers();
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to update user';
-    yield put(updateUserFailure(msg));
-    message.error(msg);
-  }
+  yield* apiSaga({
+    apiMethod: () => userService.updateUser(action.payload.id, action.payload.data),
+    onSuccess: updateUserSuccess,
+    onFailure: updateUserFailure,
+    successMessage: 'User updated successfully',
+    errorMessage: 'Failed to update user',
+    callback: refetchUsers
+  });
 }
 
 // ---- Delete User ----
 function* handleDeleteUser(action: PayloadAction<number>) {
-  try {
-    yield call(userService.deleteUser, action.payload);
-    yield put(deleteUserSuccess());
-    message.success('User deleted successfully');
-    yield* refetchUsers();
-  } catch (error: any) {
-    const msg = error.response?.data?.message || 'Failed to delete user';
-    yield put(deleteUserFailure(msg));
-    message.error(msg);
-  }
+  yield* apiSaga({
+    apiMethod: () => userService.deleteUser(action.payload),
+    onSuccess: deleteUserSuccess,
+    onFailure: deleteUserFailure,
+    successMessage: 'User deleted successfully',
+    errorMessage: 'Failed to delete user',
+    callback: refetchUsers
+  });
 }
 
 // ---- Watcher ----

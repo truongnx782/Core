@@ -27,7 +27,7 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
     @Query("""
             SELECT e FROM Exam e
             WHERE e.published = true
-              AND :now BETWEEN e.startTime AND e.endTime
+              AND :now >= e.startTime
             """)
     Page<Exam> findAvailableForStudent(@Param("now") LocalDateTime now, Pageable pageable);
 }

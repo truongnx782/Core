@@ -18,6 +18,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { AppDispatch, RootState } from '../../../store';
+import type { CreateQuestionRequest, QuestionInfo } from '../examTypes';
 import {
   fetchQuestionsRequest,
   addQuestionRequest,
@@ -31,13 +32,13 @@ const { Title, Text } = Typography;
 const ExamQuestionManagementPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const examId = Number(id);
 
   const { questions, questionLoading, questionError } = useSelector((state: RootState) => state.exam);
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<QuestionInfo | null>(null);
   const [correctIndex, setCorrectIndex] = useState(0);
   const [form] = Form.useForm();
 
@@ -50,12 +51,12 @@ const ExamQuestionManagementPage: React.FC = () => {
   useEffect(() => {
     if (modalOpen) {
       if (isEditMode && selectedQuestion) {
-        const correctIdx = selectedQuestion.options.findIndex((opt: any) => opt.correct);
+        const correctIdx = selectedQuestion.options.findIndex((opt) => opt.correct);
         form.setFieldsValue({
           content: selectedQuestion.content,
-          options: selectedQuestion.options.map((opt: any) => ({ content: opt.content })),
+          options: selectedQuestion.options.map((opt) => ({ content: opt.content })),
         });
-        setCorrectIndex(correctIdx);
+        setCorrectIndex(correctIdx >= 0 ? correctIdx : 0);
       } else {
         form.setFieldsValue({
           content: '',
@@ -74,7 +75,7 @@ const ExamQuestionManagementPage: React.FC = () => {
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
-      const payload = {
+      const payload: CreateQuestionRequest = {
         content: values.content,
         options: values.options.map((option: { content: string }, index: number) => ({
           content: option.content,
@@ -90,8 +91,9 @@ const ExamQuestionManagementPage: React.FC = () => {
       setModalOpen(false);
       setIsEditMode(false);
       setSelectedQuestion(null);
+      form.resetFields();
     } catch (error) {
-      // handled by Form
+      // validation error handled by Form
     }
   };
 
@@ -99,6 +101,7 @@ const ExamQuestionManagementPage: React.FC = () => {
     setModalOpen(false);
     setIsEditMode(false);
     setSelectedQuestion(null);
+    form.resetFields();
   };
 
   const openAddModal = () => {
@@ -107,7 +110,7 @@ const ExamQuestionManagementPage: React.FC = () => {
     setModalOpen(true);
   };
 
-  const openEditModal = (question: any) => {
+  const openEditModal = (question: QuestionInfo) => {
     setIsEditMode(true);
     setSelectedQuestion(question);
     setModalOpen(true);

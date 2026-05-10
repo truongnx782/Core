@@ -12,5 +12,7 @@ public interface SubmissionService {
     StudentSubmissionResponse getMyLatestResult(Long examId);
 
     List<StudentSubmissionResponse> getMyHistory(Long examId);
+
+    List<StudentSubmissionResponse> getExamSubmissions(Long examId);
 }
 

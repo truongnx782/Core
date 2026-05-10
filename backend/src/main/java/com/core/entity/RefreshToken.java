@@ -15,11 +15,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RefreshToken {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RefreshToken extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String token;

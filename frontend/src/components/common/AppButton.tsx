@@ -17,6 +17,9 @@ const variantMap: Record<AppVariant, Partial<ButtonProps>> = {
 
 /**
  * Styled button component with predefined variant styles.
+ * Component nút bấm (button) được định kiểu sẵn (primary, danger, ghost, default).
+ * 
+ * @param variant The visual style of the button (AppVariant)
  */
 const AppButton: React.FC<AppButtonProps> = ({ variant = 'default', children, ...rest }) => {
   const variantProps = variantMap[variant];

@@ -11,6 +11,8 @@ const App: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
+  // Initialize auth state on app load.
+  // Khởi tạo trạng thái xác thực khi ứng dụng vừa tải (ngăn ngừa mất session khi F5).
   useEffect(() => {
     const initializeAuth = async () => {
       try {
