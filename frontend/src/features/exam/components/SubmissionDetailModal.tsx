@@ -26,7 +26,7 @@ interface Props {
   onClose: () => void;
 }
 
-const SubmissionDetailModal: React.FC<Props> = ({
+export const SubmissionDetailModal: React.FC<Props> = ({
   open,
   submission,
   onClose,
@@ -193,7 +193,7 @@ const SubmissionDetailModal: React.FC<Props> = ({
         </Space>
       </div>
 
-      <Divider orientation="left">{t("exams.reviewAnswers")}</Divider>
+      <Divider titlePlacement="start">{t("exams.reviewAnswers")}</Divider>
 
       {loading ? (
         <Skeleton active />
@@ -205,5 +205,3 @@ const SubmissionDetailModal: React.FC<Props> = ({
     </Modal>
   );
 };
-
-export default SubmissionDetailModal;

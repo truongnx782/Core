@@ -24,7 +24,8 @@ function* handleLogin(
     actionPayload: action.payload,
     onFailure: loginFailure,
     errorMessage: i18n.t("common.error"),
-    callback: function* (data: AuthResponse) {
+    callback: function* (res: any) {
+      const data = res.data as AuthResponse;
       yield put(
         loginSuccess({ accessToken: data.accessToken, user: data.user }),
       );
@@ -46,7 +47,8 @@ function* handleRegister(
     actionPayload: action.payload,
     onFailure: registerFailure,
     errorMessage: i18n.t("common.error"),
-    callback: function* (data: AuthResponse) {
+    callback: function* (res: any) {
+      const data = res.data as AuthResponse;
       yield put(
         registerSuccess({ accessToken: data.accessToken, user: data.user }),
       );
