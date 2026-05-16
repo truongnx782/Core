@@ -14,7 +14,8 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // ---- Login ----
+    // ---- Login / Đăng nhập ----
+    // Request to login / Yêu cầu đăng nhập
     loginRequest: (
       state,
       action: PayloadAction<{ email: string; password: string }>,
@@ -38,7 +39,8 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---- Register ----
+    // ---- Register / Đăng ký ----
+    // Request to register / Yêu cầu đăng ký tài khoản mới
     registerRequest: (
       state,
       action: PayloadAction<{
@@ -67,7 +69,7 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---- Refresh Token ----
+    // ---- Refresh Token / Làm mới Token ----
     refreshTokenSuccess: (
       state,
       action: PayloadAction<{ accessToken: string; user: UserInfo }>,
@@ -77,7 +79,8 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
     },
 
-    // ---- Logout ----
+    // ---- Logout / Đăng xuất ----
+    // Logout action / Hành động đăng xuất
     logoutAction: (state) => {
       state.accessToken = null;
       state.user = null;
@@ -86,7 +89,8 @@ const authSlice = createSlice({
       state.error = null;
     },
 
-    // ---- Clear Error ----
+    // ---- Clear Error / Xóa trạng thái lỗi ----
+    // Clear current auth error / Xóa thông báo lỗi xác thực hiện tại
     clearAuthError: (state) => {
       state.error = null;
     },

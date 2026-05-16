@@ -17,8 +17,7 @@ interface ApiSagaOptions<TResponse, TActionPayload = unknown> {
 }
 
 /**
- * Common Saga wrapper to handle API calls, success/error dispatching, and toast notifications.
- * Wrapper dùng chung cho các Saga để gọi API, tự động xử lý lỗi và hiển thị thông báo.
+ * Common Saga wrapper to handle API calls, success/error dispatching, and toast notifications / Wrapper dùng chung cho các Saga để gọi API, tự động xử lý lỗi và hiển thị thông báo.
  */
 export function* apiSaga<TResponse, TActionPayload = unknown>({
   apiMethod,
@@ -65,7 +64,7 @@ export function* apiSaga<TResponse, TActionPayload = unknown>({
     }
 
     if (errorMessage !== null) {
-      // if null is passed, suppress toast
+      // if null is passed, suppress toast / nếu giá trị null được truyền vào, bỏ qua thông báo
       message.error(msg);
     }
   }

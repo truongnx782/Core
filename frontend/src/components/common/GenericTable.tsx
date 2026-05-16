@@ -12,11 +12,8 @@ interface GenericTableProps<T> {
 }
 
 /**
- * Generic reusable table component wrapping Ant Design Table.
- * Provides consistent styling, loading states, and empty placeholders.
- *
- * Bảng dữ liệu (Table) dùng chung, tích hợp sẵn Ant Design Table.
- * Cung cấp style đồng nhất, trạng thái loading và text hiển thị khi không có dữ liệu.
+ * Generic reusable table component wrapping Ant Design Table / Bảng dữ liệu (Table) dùng chung, tích hợp sẵn Ant Design Table.
+ * Provides consistent styling, loading states, and empty placeholders / Cung cấp style đồng nhất, trạng thái loading và text hiển thị khi không có dữ liệu.
  */
 import { useTranslation } from "react-i18next";
 

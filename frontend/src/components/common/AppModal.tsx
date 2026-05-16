@@ -7,8 +7,7 @@ interface AppModalProps extends ModalProps {
 }
 
 /**
- * Reusable modal component wrapping Ant Design Modal with consistent styling.
- * Component hộp thoại (Modal) tái sử dụng dựa trên Ant Design, chuẩn hoá giao diện.
+ * Reusable modal component wrapping Ant Design Modal with consistent styling / Component hộp thoại (Modal) tái sử dụng dựa trên Ant Design, chuẩn hoá giao diện.
  */
 const AppModal: React.FC<AppModalProps> = ({ children, ...rest }) => {
   return (

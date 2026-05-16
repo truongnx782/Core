@@ -47,7 +47,7 @@ import ExamFormModal, {
 
 const { Title, Text } = Typography;
 
-/** Map server QuestionInfo → LocalQuestion for the modal */
+/** Map server QuestionInfo → LocalQuestion for the modal / Chuyển đổi thông tin câu hỏi từ server sang chuẩn local cho modal */
 function toLocalQuestions(serverQuestions: QuestionInfo[]): LocalQuestion[] {
   let tempId = -9000;
   return serverQuestions.map((q) => ({
@@ -89,13 +89,13 @@ const ExamListPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
-  // ── Open modal ──
+  // ── Open modal / Mở hộp thoại ──
   const handleOpenModal = (exam?: ExamInfo) => {
     setSelectedExam(exam || null);
     setModalQuestions([]);
 
     if (exam) {
-      // Fetch questions for this exam, then open modal when done
+      // Fetch questions for this exam, then open modal when done / Lấy câu hỏi cho bài thi này, sau đó mở hộp thoại
       setPendingOpenExamId(exam.id);
       dispatch(fetchQuestionsRequest({ examId: exam.id }));
     } else {
@@ -115,7 +115,7 @@ const ExamListPage: React.FC = () => {
     }
   }, [questionLoading, pendingOpenExamId, questions]);
 
-  // ── Save (create or update + questions) ──
+  // ── Save (create or update + questions) / Lưu (tạo mới hoặc cập nhật + câu hỏi) ──
   const handleSave = (result: ExamFormResult) => {
     dispatch(
       saveExamWithQuestionsRequest({

@@ -11,8 +11,7 @@ interface PaginationState {
 }
 
 /**
- * Generic custom hook for managing server-side pagination.
- * Hook dùng chung để quản lý phân trang phía server.
+ * Generic custom hook for managing server-side pagination / Hook dùng chung để quản lý phân trang phía server.
  *
  * @param selector Function to select pagination state from Redux / Hàm chọn state phân trang
  * @param actionCreator Function that returns the fetch action / Hàm tạo action fetch dữ liệu
@@ -25,7 +24,7 @@ export function usePagination<T extends PaginationState>(
   const dispatch = useDispatch<AppDispatch>();
   const pagination = useSelector(selector);
 
-  // Stringify extraParams to use in dependency array without triggering on every render
+  // Stringify extraParams to use in dependency array without triggering on every render / Chuỗi hóa extraParams để sử dụng trong mảng phụ thuộc mà không kích hoạt render lại liên tục
   const extraParamsKey = JSON.stringify(extraParams);
 
   const fetchPage = useCallback(

@@ -8,7 +8,7 @@ import Breadcrumbs from "./Breadcrumbs";
 const { Content } = Layout;
 
 /**
- * Main dashboard layout with sidebar, header, breadcrumbs, and content area.
+ * Main dashboard layout with sidebar, header, breadcrumbs, and content area / Bố cục bảng điều khiển chính với thanh bên, header, breadcrumbs và phần nội dung.
  */
 const DashboardLayout: React.FC = () => {
   return (

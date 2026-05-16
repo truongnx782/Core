@@ -68,7 +68,7 @@ const AppHeader: React.FC = () => {
       }}
     >
       <Space size={24}>
-        {/* Language Switcher */}
+        {/* Language Switcher / Chuyển đổi ngôn ngữ */}
         <Dropdown menu={{ items: languageItems }} placement="bottomRight" arrow>
           <Space
             style={{
@@ -94,7 +94,7 @@ const AppHeader: React.FC = () => {
           </Space>
         </Dropdown>
 
-        {/* Notifications */}
+        {/* Notifications / Thông báo */}
         <BellOutlined
           style={{
             fontSize: 18,
@@ -103,7 +103,7 @@ const AppHeader: React.FC = () => {
           }}
         />
 
-        {/* User Dropdown */}
+        {/* User Dropdown / Thông tin người dùng */}
         <Dropdown menu={{ items: dropdownItems }} placement="bottomRight" arrow>
           <Space style={{ cursor: "pointer" }} size={12}>
             <Avatar

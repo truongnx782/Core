@@ -1,4 +1,4 @@
-// ---- Request Types ----
+// ---- Request Types / Các kiểu dữ liệu yêu cầu ----
 export interface LoginRequest {
   email: string;
   password: string;
@@ -11,7 +11,7 @@ export interface RegisterRequest {
   fullName?: string;
 }
 
-// ---- Response Types ----
+// ---- Response Types / Các kiểu dữ liệu phản hồi ----
 export interface UserInfo {
   id: number;
   username: string;
@@ -35,7 +35,7 @@ import type { BaseResponse } from "../../types/common";
 
 export type { BaseResponse };
 
-// ---- Auth State ----
+// ---- Auth State / Trạng thái xác thực ----
 export interface AuthState {
   accessToken: string | null;
   user: UserInfo | null;

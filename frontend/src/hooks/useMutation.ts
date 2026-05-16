@@ -9,8 +9,7 @@ interface MutationOptions {
 }
 
 /**
- * Custom hook to handle API mutations (Create/Update/Delete) and UI side-effects.
- * Hook xử lý các thao tác thay đổi dữ liệu (Thêm/Sửa/Xóa) và các hiệu ứng UI đi kèm.
+ * Custom hook to handle API mutations (Create/Update/Delete) and UI side-effects / Hook xử lý các thao tác thay đổi dữ liệu (Thêm/Sửa/Xóa) và các hiệu ứng UI đi kèm.
  */
 export function useMutation({ onSuccess, selector }: MutationOptions) {
   const dispatch = useDispatch<AppDispatch>();

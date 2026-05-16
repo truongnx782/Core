@@ -47,7 +47,11 @@ import {
   saveExamWithQuestionsFailure,
 } from "./examSlice";
 import type { RootState } from "../../store";
-import type { CreateExamRequest, CreateQuestionRequest } from "./examTypes";
+import type {
+  CreateExamRequest,
+  CreateQuestionRequest,
+  ExamInfo,
+} from "./examTypes";
 import type { LocalQuestion } from "./pages/ExamFormModal";
 import { apiSaga } from "../../store/sagaHelper";
 import { message } from "antd";
@@ -217,7 +221,7 @@ function* handleDeleteExam(action: PayloadAction<number>) {
   });
 }
 
-/** Batch create/update exam + manage questions via a single batch transaction */
+/** Batch create/update exam + manage questions via a single batch transaction / Tạo/cập nhật hàng loạt đề thi + quản lý câu hỏi qua một transaction duy nhất */
 function* handleSaveExamWithQuestions(
   action: PayloadAction<{
     examId?: number;
@@ -229,7 +233,7 @@ function* handleSaveExamWithQuestions(
   try {
     let resolvedExamId = examId;
 
-    // 1. Create or update the exam record
+    // Update the exam record / Cập nhật thông tin đề thi
     if (examId) {
       const res: AxiosResponse = yield call(
         examService.updateExam,
@@ -244,7 +248,7 @@ function* handleSaveExamWithQuestions(
 
     if (!resolvedExamId) throw new Error("No exam id returned from server");
 
-    // 2. Build batch payload — only items with actual changes
+    // 2. Build batch payload — only items with actual changes / Xây dựng dữ liệu cập nhật - chỉ gửi các câu hỏi có thay đổi
     const batchItems: import("./examService").BatchQuestionItem[] = questions
       .filter((q) => q._action !== "none")
       .map((q) => {
@@ -262,12 +266,12 @@ function* handleSaveExamWithQuestions(
             options: q.options,
           };
         } else {
-          // delete
+          // delete / Xóa câu hỏi
           return { action: "DELETE" as const, id: q.serverId! };
         }
       });
 
-    // 3. Call batch endpoint only when there are question changes
+    // 3. Call batch endpoint only when there are question changes / Gọi API Batch nếu có sự thay đổi về câu hỏi
     if (batchItems.length > 0) {
       yield call(examService.batchSyncQuestions, resolvedExamId, batchItems);
     }
@@ -276,7 +280,7 @@ function* handleSaveExamWithQuestions(
     message.success(
       examId ? "Cập nhật bài thi thành công" : "Tạo bài thi thành công",
     );
-    // Refresh admin list
+    // Refresh the list / Làm mới danh sách quản trị
     yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
   } catch (err: unknown) {
     const error = err as import("axios").AxiosError<{ message?: string }>;

@@ -1,6 +1,6 @@
 import type { UserInfo, BaseResponse } from "../auth/authTypes";
 
-// ---- Request Types ----
+// ---- Request Types / Các kiểu dữ liệu yêu cầu ----
 export interface CreateUserRequest {
   username: string;
   email: string;
@@ -27,12 +27,12 @@ export interface UserFilterParams {
   size: number;
 }
 
-// ---- Response Types ----
+// ---- Response Types / Các kiểu dữ liệu phản hồi ----
 import type { PageResponse } from "../../types/common";
 
 export type { PageResponse };
 
-// ---- User State ----
+// ---- User State / Trạng thái người dùng ----
 export interface UserState {
   users: UserInfo[];
   selectedUser: UserInfo | null;

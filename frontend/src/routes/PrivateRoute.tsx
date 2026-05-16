@@ -5,7 +5,7 @@ import type { RootState } from "../store";
 import { Spin } from "antd";
 
 /**
- * Route guard that redirects unauthenticated users to login.
+ * Route guard that redirects unauthenticated users to login / Bảo vệ tuyến đường, tự động chuyển hướng người dùng chưa đăng nhập về trang login.
  */
 const PrivateRoute: React.FC = () => {
   const { isAuthenticated, loading } = useSelector(

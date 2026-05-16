@@ -10,8 +10,7 @@ interface InputFieldProps extends InputProps {
 }
 
 /**
- * Reusable form input field with label and error display.
- * Component trường nhập liệu (Input) tái sử dụng, hỗ trợ hiển thị label và lỗi.
+ * Reusable form input field with label and error display / Component trường nhập liệu (Input) tái sử dụng, hỗ trợ hiển thị label và lỗi.
  */
 const InputField: React.FC<InputFieldProps> = ({
   label,

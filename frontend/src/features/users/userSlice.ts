@@ -29,7 +29,8 @@ const userSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    // ---- Fetch Users ----
+    // ---- Fetch Users / Lấy danh sách người dùng ----
+    // Request to fetch users list / Yêu cầu lấy danh sách người dùng
     fetchUsersRequest: (state, action: PayloadAction<UserFilterParams>) => {
       void action;
       state.loading = true;
@@ -59,7 +60,8 @@ const userSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---- Create User ----
+    // ---- Create User / Tạo người dùng ----
+    // Request to create a new user / Yêu cầu tạo người dùng mới
     createUserRequest: (state, action: PayloadAction<CreateUserRequest>) => {
       void action;
       state.loading = true;
@@ -73,7 +75,8 @@ const userSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---- Update User ----
+    // ---- Update User / Cập nhật người dùng ----
+    // Request to update an existing user / Yêu cầu cập nhật thông tin người dùng
     updateUserRequest: (
       state,
       action: PayloadAction<{ id: number; data: UpdateUserRequest }>,
@@ -90,7 +93,8 @@ const userSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---- Delete User ----
+    // ---- Delete User / Xóa người dùng ----
+    // Request to delete a user / Yêu cầu xóa người dùng
     deleteUserRequest: (state, action: PayloadAction<number>) => {
       void action;
       state.loading = true;
@@ -104,13 +108,14 @@ const userSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---- Filters ----
+    // ---- Filters / Bộ lọc ----
     setKeyword: (state, action: PayloadAction<string>) => {
       state.filters.keyword = action.payload;
     },
     setRoleFilter: (state, action: PayloadAction<string>) => {
       state.filters.role = action.payload;
     },
+    // Set the currently selected user for editing / Chọn người dùng để chỉnh sửa
     setSelectedUser: (state, action: PayloadAction<UserInfo | null>) => {
       state.selectedUser = action.payload;
     },

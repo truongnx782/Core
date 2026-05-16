@@ -12,6 +12,10 @@ import ExamTakingPage from "../features/exam/pages/ExamTakingPage";
 import ExamResultPage from "../features/exam/pages/ExamResultPage";
 import type { RootState } from "../store";
 
+/**
+ * Component to protect routes based on user role / Component bảo vệ các tuyến đường dựa trên vai trò người dùng.
+ */
+
 const RequireRole: React.FC<{ roles: string[]; children: React.ReactNode }> = ({
   roles,
   children,
@@ -24,16 +28,19 @@ const RequireRole: React.FC<{ roles: string[]; children: React.ReactNode }> = ({
   );
 };
 
+/**
+ * Main application routing configuration / Cấu hình định tuyến chính của ứng dụng.
+ */
 const AppRoutes: React.FC = () => {
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Public Routes / Các tuyến đường công khai */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Protected Routes */}
+      {/* Protected Routes / Các tuyến đường yêu cầu xác thực */}
       <Route element={<PrivateRoute />}>
         <Route element={<DashboardLayout />}>
           <Route
@@ -66,7 +73,7 @@ const AppRoutes: React.FC = () => {
         </Route>
       </Route>
 
-      {/* Default redirect */}
+      {/* Default redirect / Chuyển hướng mặc định */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

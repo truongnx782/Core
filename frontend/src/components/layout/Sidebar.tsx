@@ -82,7 +82,7 @@ const Sidebar: React.FC = () => {
         zIndex: 100,
       }}
     >
-      {/* Logo */}
+      {/* Logo / Biểu tượng ứng dụng */}
       <div
         style={{
           height: 64,
@@ -125,7 +125,7 @@ const Sidebar: React.FC = () => {
         )}
       </div>
 
-      {/* Collapse Toggle */}
+      {/* Collapse Toggle / Nút đóng mở sidebar */}
       <div
         onClick={() => setCollapsed(!collapsed)}
         style={{
@@ -139,7 +139,7 @@ const Sidebar: React.FC = () => {
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </div>
 
-      {/* Navigation Menu */}
+      {/* Navigation Menu / Danh mục điều hướng */}
       <Menu
         theme="dark"
         mode="inline"

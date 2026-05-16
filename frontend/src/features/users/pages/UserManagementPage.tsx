@@ -56,11 +56,8 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 /**
- * Page component for managing system users.
- * Requires ADMIN role for full CRUD capabilities.
- *
- * Component trang quản trị người dùng.
- * Yêu cầu quyền ADMIN để thực hiện các thao tác CRUD.
+ * Page component for managing system users / Component trang quản trị người dùng.
+ * Requires ADMIN role for full CRUD capabilities / Yêu cầu quyền ADMIN để thực hiện các thao tác CRUD.
  */
 const UserManagementPage: React.FC = () => {
   const { t } = useTranslation();
@@ -75,7 +72,7 @@ const UserManagementPage: React.FC = () => {
   const [searchValue, setSearchValue] = useState(filters.keyword);
   const debouncedSearch = useDebounce(searchValue, 400);
 
-  // Pagination & Fetching
+  // Pagination & Fetching / Phân trang & Lấy dữ liệu
   const pagination = usePagination(
     (s: RootState) => s.users.pagination,
     fetchUsersRequest,
@@ -87,7 +84,7 @@ const UserManagementPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, filters.role]);
 
-  // Mutation (Create/Update)
+  // Mutation (Create/Update) / Xử lý Thêm/Sửa
   const { mutate, isLoading: isSaving } = useMutation({
     selector: (s: RootState) => s.users,
     onSuccess: () => {
@@ -96,19 +93,19 @@ const UserManagementPage: React.FC = () => {
     },
   });
 
-  // Sync search to Redux
+  // Sync search to Redux / Đồng bộ tìm kiếm với Redux
   useEffect(() => {
     dispatch(setKeyword(debouncedSearch));
   }, [debouncedSearch, dispatch]);
 
-  // Fill form when editing
+  // Fill form when editing / Điền dữ liệu form khi chỉnh sửa
   useEffect(() => {
     if (isModalOpen && isEditMode && selectedUser) {
       form.setFieldsValue(selectedUser);
     }
   }, [isModalOpen, isEditMode, selectedUser, form]);
 
-  // ---- Handlers ----
+  // ---- Handlers / Các hàm xử lý sự kiện ----
   const handleOpenModal = (user?: UserInfo) => {
     setIsEditMode(!!user);
     dispatch(setSelectedUser(user || null));
@@ -127,7 +124,7 @@ const UserManagementPage: React.FC = () => {
 
   const handleDelete = (id: number) => dispatch(deleteUserRequest(id));
 
-  // ---- Table Columns ----
+  // ---- Table Columns / Cột dữ liệu bảng ----
   const columns: ColumnsType<UserInfo> = [
     {
       title: "ID",

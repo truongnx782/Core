@@ -1,6 +1,5 @@
 /**
- * Common Types and Interfaces
- * Nơi định nghĩa các kiểu dữ liệu dùng chung (response API, pagination)
+ * Common Types and Interfaces / Nơi định nghĩa các kiểu dữ liệu dùng chung (response API, pagination)
  */
 
 export interface BaseResponse<T> {

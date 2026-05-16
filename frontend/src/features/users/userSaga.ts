@@ -24,7 +24,7 @@ import type { RootState } from "../../store";
 
 import { apiSaga } from "../../store/sagaHelper";
 
-// ---- Fetch Users ----
+// ---- Fetch Users / Lấy danh sách người dùng ----
 function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
   yield* apiSaga({
     apiMethod: userService.getUsers,
@@ -51,7 +51,7 @@ function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
   });
 }
 
-// Helper: re-fetch current page after mutation
+// Helper: re-fetch current page after mutation / Hàm hỗ trợ: tải lại trang hiện tại sau khi thay đổi dữ liệu
 function* refetchUsers() {
   const state: RootState = yield select();
   const { pagination, filters } = state.users;
@@ -65,7 +65,7 @@ function* refetchUsers() {
   );
 }
 
-// ---- Create User ----
+// ---- Create User / Tạo người dùng ----
 function* handleCreateUser(action: PayloadAction<CreateUserRequest>) {
   yield* apiSaga({
     apiMethod: userService.createUser,
@@ -78,7 +78,7 @@ function* handleCreateUser(action: PayloadAction<CreateUserRequest>) {
   });
 }
 
-// ---- Update User ----
+// ---- Update User / Cập nhật người dùng ----
 function* handleUpdateUser(
   action: PayloadAction<{ id: number; data: UpdateUserRequest }>,
 ) {
@@ -93,7 +93,7 @@ function* handleUpdateUser(
   });
 }
 
-// ---- Delete User ----
+// ---- Delete User / Xóa người dùng ----
 function* handleDeleteUser(action: PayloadAction<number>) {
   yield* apiSaga({
     apiMethod: () => userService.deleteUser(action.payload),
@@ -105,7 +105,7 @@ function* handleDeleteUser(action: PayloadAction<number>) {
   });
 }
 
-// ---- Watcher ----
+// ---- Watcher / Theo dõi các actions ----
 export default function* userSaga() {
   yield takeLatest(fetchUsersRequest.type, handleFetchUsers);
   yield takeLatest(createUserRequest.type, handleCreateUser);

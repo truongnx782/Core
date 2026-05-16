@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type {
@@ -58,7 +57,7 @@ const examSlice = createSlice({
   name: "exam",
   initialState,
   reducers: {
-    // ---- Student list ----
+    // ---- Student list / Danh sách học viên ----
     fetchAvailableExamsRequest: (
       state,
       action: PayloadAction<{ page: number; size: number }>,
@@ -125,12 +124,13 @@ const examSlice = createSlice({
       state.error = action.payload;
     },
 
+    // Fetch exam questions / Lấy danh sách câu hỏi của đề thi
     fetchQuestionsRequest: (
       state,
       action: PayloadAction<{ examId: number }>,
     ) => {
       void action;
-      // Bắt đầu tải câu hỏi của đề thi
+      // Start loading exam questions / Bắt đầu tải câu hỏi của đề thi
       state.questionLoading = true;
       state.questionError = null;
     },
@@ -145,6 +145,7 @@ const examSlice = createSlice({
       state.questionError = action.payload;
     },
 
+    // Add new question / Thêm câu hỏi mới
     addQuestionRequest: (
       state,
       action: PayloadAction<{ examId: number; data: CreateQuestionRequest }>,
@@ -162,6 +163,7 @@ const examSlice = createSlice({
       state.questionError = action.payload;
     },
 
+    // Update existing question / Cập nhật câu hỏi hiện có
     updateQuestionRequest: (
       state,
       action: PayloadAction<{
@@ -183,6 +185,7 @@ const examSlice = createSlice({
       state.questionError = action.payload;
     },
 
+    // Delete question / Xóa câu hỏi
     deleteQuestionRequest: (
       state,
       action: PayloadAction<{ questionId: number; examId: number }>,
@@ -205,7 +208,7 @@ const examSlice = createSlice({
       action: PayloadAction<{ data: CreateExamRequest }>,
     ) => {
       void action;
-      // Bắt đầu tạo đề thi mới
+      // Start creating new exam / Bắt đầu tạo đề thi mới
       state.loading = true;
       state.error = null;
     },
@@ -224,7 +227,7 @@ const examSlice = createSlice({
       action: PayloadAction<{ id: number; data: CreateExamRequest }>,
     ) => {
       void action;
-      // Bắt đầu cập nhật đề thi
+      // Start updating exam / Bắt đầu cập nhật đề thi
       state.loading = true;
       state.error = null;
     },
@@ -238,6 +241,7 @@ const examSlice = createSlice({
       state.error = action.payload;
     },
 
+    // Delete exam / Xóa đề thi
     deleteExamRequest: (state, action: PayloadAction<number>) => {
       void action;
       state.loading = true;
@@ -253,7 +257,7 @@ const examSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---- Start taking ----
+    // ---- Start taking exam / Bắt đầu làm bài thi ----
     startExamRequest: (state, action: PayloadAction<{ examId: number }>) => {
       void action;
       state.loading = true;
@@ -267,7 +271,7 @@ const examSlice = createSlice({
       void action;
       state.loading = false;
       state.taking = action.payload;
-      // initialize answers map with previous answers if available
+      // Initialize answers map with previous answers if available / Khởi tạo danh sách trả lời với dữ liệu cũ nếu có
       const map: Record<number, number | null> = {};
       action.payload.questions.forEach((q) => {
         map[q.id] = action.payload.previousAnswers?.[q.id] ?? null;
@@ -280,6 +284,7 @@ const examSlice = createSlice({
       state.error = action.payload;
     },
 
+    // Save student answer locally / Lưu câu trả lời của học sinh vào local state
     setAnswer: (
       state,
       action: PayloadAction<{ questionId: number; optionId: number | null }>,
@@ -289,7 +294,7 @@ const examSlice = createSlice({
         action.payload.optionId;
     },
 
-    // ---- Submit ----
+    // ---- Submit exam / Nộp bài thi ----
     submitExamRequest: (state, action: PayloadAction<{ examId: number }>) => {
       void action;
       state.submitting = true;
@@ -309,7 +314,7 @@ const examSlice = createSlice({
       state.submitError = action.payload;
     },
 
-    // ---- Result ----
+    // ---- Exam result / Kết quả bài thi ----
     fetchLatestResultRequest: (
       state,
       action: PayloadAction<{ examId: number }>,
@@ -356,6 +361,7 @@ const examSlice = createSlice({
       state.error = action.payload;
     },
 
+    // Reset exam state / Làm sạch trạng thái đề thi
     clearExamState: (state) => {
       state.taking = null;
       state.answersByQuestionId = {};
@@ -365,7 +371,7 @@ const examSlice = createSlice({
       state.submitting = false;
     },
 
-    // ---- Batch save exam + questions ----
+    // ---- Batch save exam + questions / Lưu hàng loạt đề thi và câu hỏi ----
     saveExamWithQuestionsRequest: (
       state,
       action: PayloadAction<{

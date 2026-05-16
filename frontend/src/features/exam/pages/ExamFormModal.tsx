@@ -27,13 +27,13 @@ import QuestionCard from "../components/QuestionCard";
 const { Text, Title } = Typography;
 
 // ─────────────────────────────────────────────
-// Types
+// Types / Khai báo kiểu dữ liệu
 // ─────────────────────────────────────────────
 
 export interface LocalQuestion {
-  /** negative id = not yet persisted */
+  /** negative id = not yet persisted / id âm = chưa lưu vào DB */
   tempId: number;
-  /** undefined if new question */
+  /** undefined if new question / undefined nếu là câu hỏi mới */
   serverId?: number;
   content: string;
   options: { content: string; correct: boolean }[];
@@ -55,7 +55,7 @@ interface Props {
 }
 
 // ─────────────────────────────────────────────
-// Main ExamFormModal
+// Main ExamFormModal / Component chính
 // ─────────────────────────────────────────────
 
 let _tempIdCounter = -1;
@@ -87,7 +87,7 @@ const ExamFormModal: React.FC<Props> = ({
   const [correctIndex, setCorrectIndex] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
 
-  // ── Reset on open ──
+  // ── Reset on open / Khôi phục trạng thái khi mở ──
   useEffect(() => {
     if (!open) return;
     if (exam) {
@@ -100,14 +100,14 @@ const ExamFormModal: React.FC<Props> = ({
       examForm.resetFields();
     }
 
-    // Defer state updates to next tick to avoid cascading renders warning
+    // Defer state updates to next tick to avoid cascading renders warning / Đẩy việc cập nhật state sang tick tiếp theo để tránh lỗi render hàng loạt
     const timer = setTimeout(() => {
       setActiveTab("info");
       setEditingTempId(null);
       setIsAdding(false);
       setNewQuestion(null);
       setIsDirty(false);
-      // Map server questions to local
+      // Map server questions to local / Chuyển đổi câu hỏi từ server sang chuẩn local
       setQuestions(
         existingQuestions.map((q) => ({ ...q, _action: "none" as const })),
       );
@@ -116,12 +116,12 @@ const ExamFormModal: React.FC<Props> = ({
     return () => clearTimeout(timer);
   }, [open, exam, existingQuestions, examForm]);
 
-  // ── Mark dirty on form change ──
+  // ── Mark dirty on form change / Đánh dấu form đã thay đổi ──
   const onFormValuesChange = () => {
     setIsDirty(true);
   };
 
-  // ── Build exam payload ──
+  // ── Build exam payload / Xây dựng dữ liệu gửi đi ──
   const buildExamPayload = async (): Promise<CreateExamRequest | null> => {
     try {
       const values = await examForm.validateFields();
@@ -135,7 +135,7 @@ const ExamFormModal: React.FC<Props> = ({
     }
   };
 
-  // ── Try to save actively editing question ──
+  // ── Try to save actively editing question / Cố gắng lưu câu hỏi đang chỉnh sửa ──
   const trySaveActiveQuestion = async (): Promise<LocalQuestion[] | null> => {
     if (isAdding && newQuestion) {
       try {
@@ -187,7 +187,7 @@ const ExamFormModal: React.FC<Props> = ({
     return questions; // no active question being edited
   };
 
-  // ── Save handler ──
+  // ── Save handler / Hàm xử lý lưu ──
   const handleSave = async () => {
     const updatedQuestions = await trySaveActiveQuestion();
     if (!updatedQuestions) return; // Validation failed on active question
@@ -200,7 +200,7 @@ const ExamFormModal: React.FC<Props> = ({
     onSave({ examData, questions: updatedQuestions });
   };
 
-  // ── Auto-save on close if dirty ──
+  // ── Auto-save on close if dirty / Tự động lưu khi đóng nếu có thay đổi ──
   const handleClose = async () => {
     if (isDirty || isAdding || editingTempId !== null) {
       const updatedQuestions = await trySaveActiveQuestion();
@@ -218,7 +218,7 @@ const ExamFormModal: React.FC<Props> = ({
     onClose();
   };
 
-  // ── Question CRUD (local) ──
+  // ── Question CRUD (local) / Xử lý CRUD câu hỏi (local) ──
   const startAddQuestion = () => {
     setIsAdding(true);
     setEditingTempId(null);
@@ -252,7 +252,7 @@ const ExamFormModal: React.FC<Props> = ({
       prev
         .map((q) => {
           if (q.tempId !== tempId) return q;
-          // If never persisted, remove entirely; otherwise mark delete
+          // If never persisted, remove entirely; otherwise mark delete / Nếu chưa từng lưu thì xoá luôn, ngược lại thì đánh dấu xoá
           if (!q.serverId) return null as unknown as LocalQuestion;
           return { ...q, _action: "delete" as const };
         })

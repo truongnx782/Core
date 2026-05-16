@@ -49,7 +49,7 @@ const ExamTakingPage: React.FC = () => {
   const initialLoadRef = useRef(true);
   const shouldRedirectAfterSubmitRef = useRef(false);
 
-  // Reset state mỗi khi phiên làm bài mới được tải
+  // Reset exam state when the route changes or the page is loaded / Reset state mỗi khi phiên làm bài mới được tải
   useEffect(() => {
     if (taking) {
       submittedRef.current = false;
@@ -58,12 +58,11 @@ const ExamTakingPage: React.FC = () => {
     }
   }, [taking]);
 
-  // Reset exam state when the route changes or the page is loaded
   useEffect(() => {
     dispatch(clearExamState());
   }, [dispatch, examId]);
 
-  // Ensure session loaded (deep link case)
+  // Ensure session loaded (deep link case) / Đảm bảo phiên đã được tải (trường hợp deep link)
   useEffect(() => {
     if (!taking && examId) {
       dispatch(startExamRequest({ examId }));
@@ -79,7 +78,7 @@ const ExamTakingPage: React.FC = () => {
     [taking],
   );
 
-  // Countdown sử dụng serverTime làm tham chiếu để tránh lệch giờ client
+  // Countdown using serverTime as reference to avoid client time skew / Countdown sử dụng serverTime làm tham chiếu để tránh lệch giờ client
   useEffect(() => {
     if (!deadline || !serverTimeAtStart) return;
 
@@ -106,7 +105,7 @@ const ExamTakingPage: React.FC = () => {
     };
   }, [deadline, serverTimeAtStart]);
 
-  // Tự động nộp khi thời gian hết thực sự, không thực hiện trên lần tải đầu
+  // Auto submit when time is up, ignore on first load / Tự động nộp khi thời gian hết thực sự, không thực hiện trên lần tải đầu
   useEffect(() => {
     if (!taking) return;
     if (remainingSec > 0) return;
@@ -117,7 +116,7 @@ const ExamTakingPage: React.FC = () => {
     dispatch(submitExamRequest({ examId }));
   }, [dispatch, remainingSec, taking, examId]);
 
-  // Redirect to exam list after any successful submission in this session
+  // Redirect to exam list after any successful submission in this session / Chuyển hướng về danh sách bài thi sau khi nộp thành công trong phiên này
   useEffect(() => {
     if (latestResult && !submitting && shouldRedirectAfterSubmitRef.current) {
       navigate("/dashboard/exams", { replace: true });
