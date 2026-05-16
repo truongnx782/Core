@@ -6,16 +6,12 @@ import {
   Space,
   Tag,
   Typography,
-  Form,
   Popconfirm,
   Divider,
   Pagination,
-  Input,
-  DatePicker,
-  Switch,
-  InputNumber,
   Skeleton,
   Statistic,
+  Spin,
 } from 'antd';
 import {
   PlusOutlined,
@@ -23,43 +19,55 @@ import {
   ReloadOutlined,
   FileTextOutlined,
   DashboardOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useTranslation } from 'react-i18next';
 import type { AppDispatch, RootState } from '../../../store';
-import type { ExamInfo } from '../examTypes';
+import type { ExamInfo, QuestionInfo } from '../examTypes';
 
 dayjs.extend(isBetween);
 
 import {
-  createExamRequest,
   deleteExamRequest,
   fetchAvailableExamsRequest,
   fetchAdminExamsRequest,
-  updateExamRequest,
+  fetchQuestionsRequest,
+  saveExamWithQuestionsRequest,
 } from '../examSlice';
 import { usePagination } from '../../../hooks/usePagination';
-import { useMutation } from '../../../hooks/useMutation';
-import AppModal from '../../../components/common/AppModal';
 import AppButton from '../../../components/common/AppButton';
 import { useNavigate } from 'react-router-dom';
-import InputField from '../../../components/common/InputField';
+import ExamFormModal, { type LocalQuestion, type ExamFormResult } from './ExamFormModal';
 
 const { Title, Text } = Typography;
+
+/** Map server QuestionInfo → LocalQuestion for the modal */
+function toLocalQuestions(serverQuestions: QuestionInfo[]): LocalQuestion[] {
+  let tempId = -9000;
+  return serverQuestions.map((q) => ({
+    tempId: tempId--,
+    serverId: q.id,
+    content: q.content,
+    options: q.options.map((o) => ({ content: o.content, correct: !!o.correct })),
+    _action: 'none' as const,
+  }));
+}
 
 const ExamListPage: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const [form] = Form.useForm();
+
   const [modalOpen, setModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [selectedExam, setSelectedExam] = useState<ExamInfo | null>(null);
+  const [modalQuestions, setModalQuestions] = useState<LocalQuestion[]>([]);
+  const [pendingOpenExamId, setPendingOpenExamId] = useState<number | null>(null);
 
   const { user } = useSelector((s: RootState) => s.auth);
-  const { available, adminList, loading } = useSelector((s: RootState) => s.exam);
+  const { available, adminList, loading, questions, questionLoading } = useSelector((s: RootState) => s.exam);
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'MANAGER';
 
   const pagination = usePagination(
@@ -71,42 +79,46 @@ const ExamListPage: React.FC = () => {
     pagination.onPageChange(1, 10);
   }, [isAdmin]);
 
-  const { mutate, isLoading: isSaving } = useMutation({
-    selector: (s: RootState) => s.exam,
-    onSuccess: () => {
-      setModalOpen(false);
-      form.resetFields();
-    },
-  });
-
+  // ── Open modal ──
   const handleOpenModal = (exam?: ExamInfo) => {
-    setIsEditMode(!!exam);
     setSelectedExam(exam || null);
+    setModalQuestions([]);
+
     if (exam) {
-      form.setFieldsValue({
-        ...exam,
-        startTime: dayjs(exam.startTime),
-        endTime: dayjs(exam.endTime),
-      });
+      // Fetch questions for this exam, then open modal when done
+      setPendingOpenExamId(exam.id);
+      dispatch(fetchQuestionsRequest({ examId: exam.id }));
     } else {
-      form.resetFields();
+      setPendingOpenExamId(null);
+      setModalOpen(true);
     }
-    setModalOpen(true);
   };
 
-  const handleModalOk = async () => {
-    const values = await form.validateFields();
-    const payload = {
-      ...values,
-      startTime: values.startTime.format('YYYY-MM-DDTHH:mm:ss'),
-      endTime: values.endTime.format('YYYY-MM-DDTHH:mm:ss'),
-    };
-
-    if (isEditMode && selectedExam) {
-      mutate(updateExamRequest({ id: selectedExam.id, data: payload }));
-    } else {
-      mutate(createExamRequest({ data: payload }));
+  // When questionLoading finishes and we have a pending exam, open the modal
+  useEffect(() => {
+    if (pendingOpenExamId !== null && !questionLoading) {
+      setModalQuestions(toLocalQuestions(questions));
+      setPendingOpenExamId(null);
+      setModalOpen(true);
     }
+  }, [questionLoading, pendingOpenExamId]);
+
+  // ── Save (create or update + questions) ──
+  const handleSave = (result: ExamFormResult) => {
+    dispatch(
+      saveExamWithQuestionsRequest({
+        examId: selectedExam?.id,
+        examData: result.examData,
+        questions: result.questions,
+      })
+    );
+    setModalOpen(false);
+  };
+
+  const handleClose = () => {
+    setModalOpen(false);
+    setSelectedExam(null);
+    setModalQuestions([]);
   };
 
   const handleDelete = (id: number) => dispatch(deleteExamRequest(id));
@@ -124,6 +136,23 @@ const ExamListPage: React.FC = () => {
 
   return (
     <div>
+      {/* Loading overlay while fetching questions for edit */}
+      {questionLoading && pendingOpenExamId !== null && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(255,255,255,0.6)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Spin size="large" tip={t('exams.loadingQuestions')} />
+        </div>
+      )}
+
       {isAdmin && (
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={8}>
@@ -214,11 +243,12 @@ const ExamListPage: React.FC = () => {
                             </>
                           ) : (
                             <>
-                              <AppButton block onClick={() => handleOpenModal(exam)}>
+                              <AppButton
+                                block
+                                icon={<EditOutlined />}
+                                onClick={() => handleOpenModal(exam)}
+                              >
                                 {t('common.edit')}
-                              </AppButton>
-                              <AppButton block onClick={() => navigate(`/dashboard/exams/${exam.id}/questions`)}>
-                                {t('exams.questions')}
                               </AppButton>
                               <Popconfirm title={t('exams.deleteConfirm')} onConfirm={() => handleDelete(exam.id)}>
                                 <AppButton variant="danger" icon={<DeleteOutlined />} />
@@ -247,33 +277,16 @@ const ExamListPage: React.FC = () => {
         )}
       </Card>
 
-      <AppModal
-        title={isEditMode ? t('exams.updateExam') : t('exams.createExam')}
+      <ExamFormModal
         open={modalOpen}
-        onOk={handleModalOk}
-        onCancel={() => setModalOpen(false)}
-        confirmLoading={isSaving}
-        width={600}
-      >
-        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
-          <Row gutter={16}>
-            <Col span={12}><InputField name="name" label={t('exams.examName')} required placeholder={t('exams.examNamePlaceholder')} /></Col>
-            <Col span={12}><InputField name="category" label={t('exams.categoryLabel')} placeholder={t('exams.categoryPlaceholder')} /></Col>
-          </Row>
-          <Form.Item name="description" label={t('exams.descriptionLabel')}><Input.TextArea rows={3} /></Form.Item>
-          <Row gutter={16}>
-            <Col span={12}><Form.Item name="startTime" label={t('exams.startTime')} required><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="endTime" label={t('exams.endTime')} required><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
-          </Row>
-          <Row gutter={16} align="middle">
-            <Col span={12}><Form.Item name="durationMinutes" label={t('exams.durationMinutes')} required><InputNumber min={1} style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item name="published" label={t('exams.published')} valuePropName="checked"><Switch /></Form.Item></Col>
-          </Row>
-        </Form>
-      </AppModal>
+        exam={selectedExam}
+        existingQuestions={modalQuestions}
+        isSaving={loading}
+        onSave={handleSave}
+        onClose={handleClose}
+      />
     </div>
   );
 };
 
 export default ExamListPage;
-

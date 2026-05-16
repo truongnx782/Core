@@ -8,6 +8,7 @@ import type {
   QuestionInfo,
   CreateQuestionRequest,
 } from './examTypes';
+import type { LocalQuestion } from './pages/ExamFormModal';
 
 export interface ExamState {
   available: ExamInfo[];
@@ -263,6 +264,26 @@ const examSlice = createSlice({
       state.submitError = null;
       state.submitting = false;
     },
+
+    // ---- Batch save exam + questions ----
+    saveExamWithQuestionsRequest: (
+      state,
+      _action: PayloadAction<{
+        examId?: number;
+        examData: CreateExamRequest;
+        questions: LocalQuestion[];
+      }>
+    ) => {
+      state.loading = true;
+      state.error = null;
+    },
+    saveExamWithQuestionsSuccess: (state) => {
+      state.loading = false;
+    },
+    saveExamWithQuestionsFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -308,6 +329,9 @@ export const {
   fetchExamSubmissionsSuccess,
   fetchExamSubmissionsFailure,
   clearExamState,
+  saveExamWithQuestionsRequest,
+  saveExamWithQuestionsSuccess,
+  saveExamWithQuestionsFailure,
 } = examSlice.actions;
 
 export default examSlice.reducer;

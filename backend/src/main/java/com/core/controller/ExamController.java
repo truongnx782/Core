@@ -1,11 +1,14 @@
 package com.core.controller;
 
 import com.core.common.BaseResponse;
+import com.core.dto.request.BatchQuestionSyncRequest;
 import com.core.dto.request.ExamRequest;
 import com.core.dto.response.ExamResponse;
 import com.core.dto.response.PageResponse;
+import com.core.dto.response.QuestionResponse;
 import com.core.dto.response.StartExamResponse;
 import com.core.service.ExamService;
+import com.core.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class ExamController extends BaseController {
 
     private final ExamService examService;
+    private final QuestionService questionService;
 
     // ---- Admin endpoints ----
 
@@ -72,6 +76,21 @@ public class ExamController extends BaseController {
     @PostMapping("/{id}/start")
     public ResponseEntity<BaseResponse<StartExamResponse>> start(@PathVariable("id") Long examId) {
         return ResponseEntity.ok(BaseResponse.success("Exam started", examService.startExam(examId)));
+    }
+
+    /**
+     * Batch sync questions for an exam in a single transaction.
+     * Đồng bộ hàng loạt câu hỏi cho đề thi trong một transaction duy nhất.
+     * Supports ADD / UPDATE / DELETE actions per item.
+     */
+    @PostMapping("/{id}/questions/batch")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public ResponseEntity<BaseResponse<java.util.List<QuestionResponse>>> batchSyncQuestions(
+            @PathVariable Long id,
+            @Valid @RequestBody BatchQuestionSyncRequest request
+    ) {
+        var results = questionService.batchSync(id, request);
+        return ResponseEntity.ok(BaseResponse.success("Questions synced", results));
     }
 }
 

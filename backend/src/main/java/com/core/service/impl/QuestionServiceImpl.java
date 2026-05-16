@@ -1,6 +1,8 @@
 package com.core.service.impl;
 
 import com.core.dto.mapper.QuestionMapper;
+import com.core.dto.request.BatchQuestionItem;
+import com.core.dto.request.BatchQuestionSyncRequest;
 import com.core.dto.request.QuestionOptionRequest;
 import com.core.dto.request.QuestionRequest;
 import com.core.dto.response.QuestionResponse;
@@ -17,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -124,6 +127,65 @@ public class QuestionServiceImpl implements QuestionService {
         if (correctCount != 1) {
             throw new IllegalArgumentException("Each question must have exactly 1 correct option");
         }
+    }
+
+    /**
+     * Batch sync: add / update / delete questions in a single transaction.
+     * Đồng bộ hàng loạt: thêm / cập nhật / xóa câu hỏi trong một transaction duy nhất.
+     */
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public List<QuestionResponse> batchSync(Long examId, BatchQuestionSyncRequest request) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new EntityNotFoundException("Exam not found: " + examId));
+
+        List<QuestionResponse> results = new ArrayList<>();
+
+        for (BatchQuestionItem item : request.getQuestions()) {
+            switch (item.getAction()) {
+                case ADD -> {
+                    QuestionRequest qr = new QuestionRequest();
+                    qr.setContent(item.getContent());
+                    qr.setOptions(item.getOptions());
+                    results.add(addToExamInternal(exam, qr));
+                }
+                case UPDATE -> {
+                    if (item.getId() == null) {
+                        throw new IllegalArgumentException("Question id is required for UPDATE action");
+                    }
+                    QuestionRequest qr = new QuestionRequest();
+                    qr.setContent(item.getContent());
+                    qr.setOptions(item.getOptions());
+                    results.add(update(item.getId(), qr));
+                }
+                case DELETE -> {
+                    if (item.getId() == null) {
+                        throw new IllegalArgumentException("Question id is required for DELETE action");
+                    }
+                    delete(item.getId());
+                }
+            }
+        }
+
+        return results;
+    }
+
+    /** Internal add without re-fetching the exam entity */
+    private QuestionResponse addToExamInternal(Exam exam, QuestionRequest request) {
+        validateOptions(request.getOptions());
+        Question question = questionMapper.toEntity(request);
+        question.setExam(exam);
+        question = questionRepository.save(question);
+        for (QuestionOptionRequest optionReq : request.getOptions()) {
+            QuestionOption option = new QuestionOption();
+            option.setQuestion(question);
+            option.setContent(optionReq.getContent());
+            option.setCorrect(Boolean.TRUE.equals(optionReq.getCorrect()));
+            option = optionRepository.save(option);
+            question.getOptions().add(option);
+        }
+        return questionMapper.toResponse(question);
     }
 }
 

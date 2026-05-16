@@ -6,6 +6,14 @@ import type {
   CreateQuestionRequest,
 } from './examTypes';
 
+/** Payload item for the batch questions sync endpoint */
+export interface BatchQuestionItem {
+  id?: number;
+  action: 'ADD' | 'UPDATE' | 'DELETE';
+  content?: string;
+  options?: CreateQuestionRequest['options'];
+}
+
 export const examService = {
   // ---- Student ----
   getAvailableExams: (params: { page: number; size: number }) =>
@@ -38,5 +46,12 @@ export const examService = {
     axiosInstance.put(`/questions/${questionId}`, data),
 
   deleteQuestion: (questionId: number) => axiosInstance.delete(`/questions/${questionId}`),
+
+  /**
+   * Batch sync questions for an exam in a single backend transaction.
+   * Đồng bộ hàng loạt câu hỏi trong một transaction duy nhất ở backend.
+   */
+  batchSyncQuestions: (examId: number, questions: BatchQuestionItem[]) =>
+    axiosInstance.post(`/exams/${examId}/questions/batch`, { questions }),
 };
 

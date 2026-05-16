@@ -1,4 +1,4 @@
-import { put, select, takeLatest } from 'redux-saga/effects';
+import { put, select, takeLatest, call } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { examService } from './examService';
 import {
@@ -15,10 +15,13 @@ import {
   submitExamRequest, submitExamSuccess, submitExamFailure,
   fetchLatestResultRequest, fetchLatestResultSuccess, fetchLatestResultFailure,
   fetchExamSubmissionsRequest, fetchExamSubmissionsSuccess, fetchExamSubmissionsFailure,
+  saveExamWithQuestionsRequest, saveExamWithQuestionsSuccess, saveExamWithQuestionsFailure,
 } from './examSlice';
 import type { RootState } from '../../store';
 import type { CreateExamRequest, CreateQuestionRequest } from './examTypes';
+import type { LocalQuestion } from './pages/ExamFormModal';
 import { apiSaga } from '../../store/sagaHelper';
+import { message } from 'antd';
 
 function* handleFetchAvailable(action: PayloadAction<{ page: number; size: number }>) {
   yield* apiSaga({
@@ -127,6 +130,56 @@ function* handleDeleteExam(action: PayloadAction<number>) {
   });
 }
 
+/** Batch create/update exam + manage questions via a single batch transaction */
+function* handleSaveExamWithQuestions(
+  action: PayloadAction<{ examId?: number; examData: CreateExamRequest; questions: LocalQuestion[] }>
+) {
+  const { examId, examData, questions } = action.payload;
+  try {
+    let resolvedExamId = examId;
+
+    // 1. Create or update the exam record
+    if (examId) {
+      const res: any = yield call([examService, examService.updateExam], examId, examData);
+      resolvedExamId = res.data?.data?.id ?? examId;
+    } else {
+      const res: any = yield call([examService, examService.createExam], examData);
+      resolvedExamId = res.data?.data?.id;
+    }
+
+    if (!resolvedExamId) throw new Error('No exam id returned from server');
+
+    // 2. Build batch payload — only items with actual changes
+    const batchItems: import('./examService').BatchQuestionItem[] = questions
+      .filter((q) => q._action !== 'none')
+      .map((q) => {
+        if (q._action === 'add') {
+          return { action: 'ADD' as const, content: q.content, options: q.options };
+        } else if (q._action === 'update' && q.serverId) {
+          return { action: 'UPDATE' as const, id: q.serverId, content: q.content, options: q.options };
+        } else {
+          // delete
+          return { action: 'DELETE' as const, id: q.serverId! };
+        }
+      });
+
+    // 3. Call batch endpoint only when there are question changes
+    if (batchItems.length > 0) {
+      yield call([examService, examService.batchSyncQuestions], resolvedExamId, batchItems);
+    }
+
+    yield put(saveExamWithQuestionsSuccess());
+    message.success(examId ? 'Cập nhật bài thi thành công' : 'Tạo bài thi thành công');
+    // Refresh admin list
+    yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
+  } catch (err: any) {
+    const msg = err?.response?.data?.message ?? err?.message ?? 'Lỗi khi lưu bài thi';
+    yield put(saveExamWithQuestionsFailure(msg));
+    message.error(msg);
+  }
+}
+
+
 function* handleStartExam(action: PayloadAction<{ examId: number }>) {
   yield* apiSaga({
     apiMethod: examService.startExam,
@@ -184,6 +237,7 @@ export default function* examSaga() {
   yield takeLatest(createExamRequest.type, handleCreateExam);
   yield takeLatest(updateExamRequest.type, handleUpdateExam);
   yield takeLatest(deleteExamRequest.type, handleDeleteExam);
+  yield takeLatest(saveExamWithQuestionsRequest.type, handleSaveExamWithQuestions);
   yield takeLatest(fetchQuestionsRequest.type, handleFetchQuestions);
   yield takeLatest(addQuestionRequest.type, handleAddQuestion);
   yield takeLatest(updateQuestionRequest.type, handleUpdateQuestion);
