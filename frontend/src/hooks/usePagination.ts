@@ -1,6 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useCallback } from "react";
-import type { UnknownAction } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "../store";
 
 interface PaginationState {
@@ -15,29 +14,28 @@ interface PaginationState {
  *
  * @param selector Function to select pagination state from Redux / Hàm chọn state phân trang
  * @param actionCreator Function that returns the fetch action / Hàm tạo action fetch dữ liệu
+ * @param extraParams Additional filters or parameters / Các tham số lọc bổ sung
  */
 export function usePagination<T extends PaginationState>(
   selector: (state: RootState) => T,
-  actionCreator: (params: Record<string, unknown>) => UnknownAction,
-  extraParams: Record<string, unknown> = {},
+  actionCreator: any,
+  extraParams: any = {},
 ) {
   const dispatch = useDispatch<AppDispatch>();
   const pagination = useSelector(selector);
-
-  // Stringify extraParams to use in dependency array without triggering on every render / Chuỗi hóa extraParams để sử dụng trong mảng phụ thuộc mà không kích hoạt render lại liên tục
-  const extraParamsKey = JSON.stringify(extraParams);
 
   const fetchPage = useCallback(
     (page: number, size?: number) => {
       dispatch(
         actionCreator({
-          ...JSON.parse(extraParamsKey),
-          page: page,
+          ...extraParams,
+          page,
           size: size || pagination.size,
         }),
       );
     },
-    [dispatch, actionCreator, extraParamsKey, pagination.size],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, actionCreator, JSON.stringify(extraParams), pagination.size],
   );
 
   const onPageChange = useCallback(
