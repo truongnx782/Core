@@ -136,7 +136,7 @@ const ExamTakingPage: React.FC = () => {
   return (
     <div>
       <Row gutter={[16, 16]}>
-        <Col xs={24} lg={18}>
+        <Col xs={24} md={16} lg={18}>
           <Card style={{ borderRadius: 12 }}>
             <Space direction="vertical" size={12} style={{ width: "100%" }}>
               <Title level={4} style={{ margin: 0 }}>
@@ -177,7 +177,7 @@ const ExamTakingPage: React.FC = () => {
           </Card>
         </Col>
 
-        <Col xs={24} lg={6}>
+        <Col xs={24} md={8} lg={6}>
           <Card style={{ borderRadius: 12, position: "sticky", top: 16 }}>
             <Space direction="vertical" style={{ width: "100%" }} size={12}>
               <Title level={5} style={{ margin: 0 }}>

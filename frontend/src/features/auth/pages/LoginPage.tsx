@@ -4,6 +4,7 @@ import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { useAuth } from "../../../hooks/useAuth";
 import { Navigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useResponsive } from "../../../hooks/useResponsive";
 import InputField from "../../../components/common/InputField";
 import AppButton from "../../../components/common/AppButton";
 
@@ -15,6 +16,8 @@ const LoginPage: React.FC = () => {
   const { t } = useTranslation();
 
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+
+  const { isMobile } = useResponsive();
 
   return (
     <div
@@ -30,12 +33,13 @@ const LoginPage: React.FC = () => {
     >
       <Card
         style={{
-          width: 420,
+          width: "100%",
+          maxWidth: 420,
           borderRadius: 16,
           border: "none",
           boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
         }}
-        styles={{ body: { padding: "40px 32px" } }}
+        styles={{ body: { padding: isMobile ? "32px 24px" : "40px 32px" } }}
       >
         <Space
           direction="vertical"

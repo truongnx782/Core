@@ -45,6 +45,7 @@ import type { ColumnsType } from "antd/es/table";
 import type { UserInfo } from "../../auth/authTypes";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
+import { useResponsive } from "../../../hooks/useResponsive";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -66,6 +67,8 @@ const UserManagementPage: React.FC = () => {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  const { isMobile, tableScrollX, modalWidth } = useResponsive();
 
   const { users, loading, filters, selectedUser } = useSelector(
     (s: RootState) => s.users,
@@ -133,6 +136,7 @@ const UserManagementPage: React.FC = () => {
       key: "id",
       width: 60,
       sorter: (a, b) => a.id - b.id,
+      responsive: ["sm"], // Hide on mobile / Ẩn trên mobile
     },
     {
       title: t("common.username"),
@@ -146,6 +150,7 @@ const UserManagementPage: React.FC = () => {
       dataIndex: "email",
       key: "email",
       width: 220,
+      responsive: ["md"], // Hide on tablet-small / Ẩn trên máy tính bảng nhỏ
     },
     {
       title: t("common.fullName"),
@@ -160,6 +165,7 @@ const UserManagementPage: React.FC = () => {
       key: "phone",
       width: 140,
       render: (text: string) => text || "—",
+      responsive: ["lg"], // Hide on mobile/tablet / Ẩn trên mobile/tablet
     },
     {
       title: t("common.role"),
@@ -186,13 +192,14 @@ const UserManagementPage: React.FC = () => {
       dataIndex: "createdAt",
       key: "createdAt",
       width: 160,
+      responsive: ["xl"], // Only show on desktop / Chỉ hiện trên desktop
       render: (date: string) => (date ? dayjs(date).format("DD/MM/YYYY") : "—"),
     },
     {
       title: t("common.actions"),
       key: "actions",
       width: 120,
-      fixed: "right",
+      fixed: isMobile ? undefined : "right",
       render: (_: unknown, record: UserInfo) => (
         <Space>
           <Tooltip title={t("common.edit")}>
@@ -230,7 +237,7 @@ const UserManagementPage: React.FC = () => {
   return (
     <div>
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} lg={8}>
           <Card style={{ borderRadius: 12, borderLeft: "4px solid #1677ff" }}>
             <Statistic
               title={t("users.totalUsers")}
@@ -239,7 +246,7 @@ const UserManagementPage: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} lg={8}>
           <Card style={{ borderRadius: 12, borderLeft: "4px solid #52c41a" }}>
             <Statistic
               title={t("users.activeUsers")}
@@ -248,7 +255,7 @@ const UserManagementPage: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} lg={8}>
           <Card style={{ borderRadius: 12, borderLeft: "4px solid #ff4d4f" }}>
             <Statistic
               title={t("users.adminUsers")}
@@ -263,31 +270,39 @@ const UserManagementPage: React.FC = () => {
         style={{ borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
       >
         <Row
+          gutter={[16, 16]}
           justify="space-between"
           align="middle"
           style={{ marginBottom: 24 }}
         >
-          <Col>
+          <Col xs={24} md={12}>
             <Title level={4} style={{ margin: 0 }}>
               {t("users.title")}
             </Title>
           </Col>
-          <Col>
-            <Space size={12}>
+          <Col xs={24} md={12}>
+            <Space
+              size={12}
+              wrap
+              style={{
+                width: "100%",
+                justifyContent: isMobile ? "flex-start" : "flex-end",
+              }}
+            >
               <Input
                 placeholder={t("common.search")}
                 prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 allowClear
-                style={{ width: 220, borderRadius: 8 }}
+                style={{ width: isMobile ? "100%" : 220, borderRadius: 8 }}
               />
               <Select
                 placeholder={t("common.role")}
                 value={filters.role || undefined}
                 onChange={(v) => dispatch(setRoleFilter(v || ""))}
                 allowClear
-                style={{ width: 140 }}
+                style={{ width: isMobile ? "calc(100% - 100px)" : 140 }}
               >
                 {ROLE_OPTIONS.map((r) => (
                   <Option key={r} value={r}>
@@ -303,6 +318,7 @@ const UserManagementPage: React.FC = () => {
                 variant="primary"
                 icon={<PlusOutlined />}
                 onClick={() => handleOpenModal()}
+                block={isMobile}
               >
                 {t("users.addUser")}
               </AppButton>
@@ -322,7 +338,7 @@ const UserManagementPage: React.FC = () => {
             onChange: pagination.onPageChange,
             showSizeChanger: true,
           }}
-          scroll={{ x: 1200 }}
+          scroll={{ x: tableScrollX }}
         />
       </Card>
 
@@ -332,11 +348,11 @@ const UserManagementPage: React.FC = () => {
         onOk={handleModalOk}
         onCancel={() => setIsModalOpen(false)}
         confirmLoading={isSaving}
-        width={520}
+        width={modalWidth}
       >
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <InputField
                 name="username"
                 label={t("common.username")}
@@ -344,7 +360,7 @@ const UserManagementPage: React.FC = () => {
                 placeholder="username"
               />
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <InputField
                 name="email"
                 label={t("common.email")}
@@ -363,14 +379,14 @@ const UserManagementPage: React.FC = () => {
             />
           )}
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <InputField
                 name="fullName"
                 label={t("common.fullName")}
                 placeholder="Nguyễn Văn A"
               />
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <InputField
                 name="phone"
                 label={t("common.phone")}

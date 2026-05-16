@@ -8,11 +8,13 @@ import {
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import { useResponsive } from "../../hooks/useResponsive";
 
 const { Title, Text } = Typography;
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
+  const { isMobile } = useResponsive();
 
   return (
     <div>
@@ -25,7 +27,7 @@ const DashboardPage: React.FC = () => {
             "linear-gradient(135deg, #1677ff 0%, #4096ff 50%, #69b1ff 100%)",
           border: "none",
         }}
-        styles={{ body: { padding: "32px 40px" } }}
+        styles={{ body: { padding: isMobile ? "24px 20px" : "32px 40px" } }}
       >
         <Title level={3} style={{ color: "#fff", margin: 0 }}>
           {t("common.welcomeTitle")}

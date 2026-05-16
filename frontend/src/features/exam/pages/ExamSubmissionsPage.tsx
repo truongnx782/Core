@@ -156,9 +156,11 @@ const ExamSubmissionsPage: React.FC = () => {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 20,
+          flexWrap: "wrap",
+          gap: 16,
         }}
       >
-        <Space size={16}>
+        <Space size={16} style={{ flexWrap: "wrap" }}>
           <AppButton icon={<LeftOutlined />} onClick={() => navigate(-1)} />
           <Title level={3} style={{ margin: 0 }}>
             {t("exams.submissionsTitle")}
@@ -180,13 +182,15 @@ const ExamSubmissionsPage: React.FC = () => {
 
       <Card
         style={{ borderRadius: 12, boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}
+        styles={{ body: { padding: 0 } }}
       >
         <Table
           dataSource={submissions}
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={{ pageSize: 10, size: "small" }}
+          scroll={{ x: 800 }}
         />
       </Card>
 

@@ -97,6 +97,7 @@ const ExamResultPage: React.FC = () => {
               columns={columns}
               dataSource={examSubmissions}
               pagination={false}
+              scroll={{ x: "max-content" }}
             />
           )
         ) : !latestResult ? (

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Drawer, Typography } from "antd";
 import {
   DashboardOutlined,
   UserOutlined,
@@ -12,145 +12,123 @@ import {
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { RootState } from "../../store";
+import { useResponsive } from "../../hooks/useResponsive";
 
 const { Sider } = Layout;
+const { Title } = Typography;
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<any> = ({
+  collapsed,
+  onCollapse,
+  mobileOpen,
+  onMobileClose,
+}) => {
   const { t } = useTranslation();
-  const [collapsed, setCollapsed] = useState(false);
+  const { isMobile } = useResponsive();
   const navigate = useNavigate();
   const location = useLocation();
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const role = useSelector((s: any) => s.auth.user?.role);
 
-  const getMenuItems = (role?: string) => {
-    if (role === "STUDENT") {
-      return [
+  const items = useMemo(
+    () =>
+      [
+        {
+          key: "/dashboard",
+          icon: <DashboardOutlined />,
+          label: t("sidebar.dashboard"),
+          roles: ["ADMIN", "MANAGER"],
+        },
         {
           key: "/dashboard/exams",
           icon: <FileTextOutlined />,
           label: t("sidebar.exams"),
+          roles: ["ADMIN", "MANAGER", "STUDENT"],
         },
-      ];
-    }
+        {
+          key: "/dashboard/users",
+          icon: <TeamOutlined />,
+          label: t("sidebar.users"),
+          roles: ["ADMIN", "MANAGER"],
+        },
+        {
+          key: "/dashboard/profile",
+          icon: <UserOutlined />,
+          label: t("sidebar.profile"),
+        },
+        {
+          key: "/dashboard/settings",
+          icon: <SettingOutlined />,
+          label: t("sidebar.settings"),
+          roles: ["ADMIN"],
+        },
+      ].filter((i) => !i.roles || (role && i.roles.includes(role))),
+    [t, role],
+  );
 
-    return [
-      {
-        key: "/dashboard",
-        icon: <DashboardOutlined />,
-        label: t("sidebar.dashboard"),
-      },
-      {
-        key: "/dashboard/exams",
-        icon: <FileTextOutlined />,
-        label: t("sidebar.exams"),
-      },
-      {
-        key: "/dashboard/users",
-        icon: <TeamOutlined />,
-        label: t("sidebar.users"),
-      },
-      {
-        key: "/dashboard/profile",
-        icon: <UserOutlined />,
-        label: t("sidebar.profile"),
-      },
-      {
-        key: "/dashboard/settings",
-        icon: <SettingOutlined />,
-        label: t("sidebar.settings"),
-      },
-    ];
-  };
-
-  return (
-    <Sider
-      collapsible
-      collapsed={collapsed}
-      onCollapse={setCollapsed}
-      trigger={null}
-      width={260}
-      style={{
-        background: "linear-gradient(180deg, #001529 0%, #002140 100%)",
-        boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-        overflow: "auto",
-        height: "100vh",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 100,
-      }}
-    >
-      {/* Logo / Biểu tượng ứng dụng */}
+  const content = (
+    <>
       <div
         style={{
           height: 64,
+          padding: 16,
           display: "flex",
           alignItems: "center",
-          justifyContent: collapsed ? "center" : "flex-start",
-          padding: collapsed ? "0" : "0 24px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          borderBottom: "1px solid #ffffff1a",
         }}
       >
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 8,
-            background: "linear-gradient(135deg, #1677ff, #4096ff)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 18,
-            flexShrink: 0,
-          }}
-        >
-          C
-        </div>
-        {!collapsed && (
-          <span
-            style={{
-              color: "#fff",
-              fontSize: 18,
-              fontWeight: 700,
-              marginLeft: 12,
-              letterSpacing: "-0.5px",
-            }}
-          >
-            {t("common.appName")}
-          </span>
+        <Title level={4} style={{ color: "#fff", margin: 0 }}>
+          {!collapsed || isMobile ? "Core Admin" : "C"}
+        </Title>
+      </div>
+      <div
+        onClick={() => onCollapse(!collapsed)}
+        style={{
+          padding: 16,
+          cursor: "pointer",
+          color: "#ffffff73",
+          textAlign: collapsed ? "center" : "right",
+        }}
+      >
+        {isMobile ? null : collapsed ? (
+          <MenuUnfoldOutlined />
+        ) : (
+          <MenuFoldOutlined />
         )}
       </div>
-
-      {/* Collapse Toggle / Nút đóng mở sidebar */}
-      <div
-        onClick={() => setCollapsed(!collapsed)}
-        style={{
-          padding: "12px 24px",
-          cursor: "pointer",
-          color: "rgba(255,255,255,0.65)",
-          display: "flex",
-          justifyContent: collapsed ? "center" : "flex-end",
-        }}
-      >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </div>
-
-      {/* Navigation Menu / Danh mục điều hướng */}
       <Menu
         theme="dark"
         mode="inline"
         selectedKeys={[location.pathname]}
-        items={getMenuItems(userRole)}
-        onClick={({ key }) => navigate(key)}
-        style={{
-          background: "transparent",
-          borderInlineEnd: "none",
+        items={items}
+        onClick={({ key }) => {
+          navigate(key);
+          if (isMobile) onMobileClose();
         }}
+        style={{ border: "none" }}
       />
+    </>
+  );
+
+  return isMobile ? (
+    <Drawer
+      placement="left"
+      onClose={onMobileClose}
+      open={mobileOpen}
+      width={240}
+      styles={{ body: { padding: 0, background: "#001529" } }}
+      closable={false}
+    >
+      {content}
+    </Drawer>
+  ) : (
+    <Sider
+      collapsible
+      collapsed={collapsed}
+      trigger={null}
+      width={240}
+      style={{ height: "100vh", position: "fixed", left: 0, top: 0 }}
+    >
+      {content}
     </Sider>
   );
 };

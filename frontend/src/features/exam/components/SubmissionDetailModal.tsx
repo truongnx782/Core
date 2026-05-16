@@ -17,6 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { StudentSubmissionResult, QuestionInfo } from "../examTypes";
 import { examService } from "../examService";
+import { useResponsive } from "../../../hooks/useResponsive";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -32,6 +33,7 @@ export const SubmissionDetailModal: React.FC<Props> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+  const { modalWidth, isMobile } = useResponsive();
   const [questions, setQuestions] = useState<QuestionInfo[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -160,10 +162,14 @@ export const SubmissionDetailModal: React.FC<Props> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      width={800}
+      width={modalWidth}
       centered
       styles={{
-        body: { maxHeight: "70vh", overflowY: "auto", padding: "20px 24px" },
+        body: {
+          maxHeight: "80vh",
+          overflowY: "auto",
+          padding: isMobile ? 16 : 24,
+        },
       }}
     >
       <div style={{ marginBottom: 24, textAlign: "center" }}>
