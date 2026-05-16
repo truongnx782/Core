@@ -32,6 +32,14 @@ export interface ExamState {
     totalElements: number;
     totalPages: number;
   };
+  // UI State
+  isModalOpen: boolean;
+  selectedExam: ExamInfo | null;
+  modalQuestions: LocalQuestion[];
+  pendingOpenExamId: number | null;
+  // Drafting state
+  isAddingQuestion: boolean;
+  editingQuestionTempId: number | null;
 }
 
 const initialState: ExamState = {
@@ -51,6 +59,12 @@ const initialState: ExamState = {
   examSubmissions: [],
 
   pagination: { page: 0, size: 10, totalElements: 0, totalPages: 0 },
+  isModalOpen: false,
+  selectedExam: null,
+  modalQuestions: [],
+  pendingOpenExamId: null,
+  isAddingQuestion: false,
+  editingQuestionTempId: null,
 };
 
 const examSlice = createSlice({
@@ -144,6 +158,71 @@ const examSlice = createSlice({
       state.questionLoading = false;
       state.questionError = action.payload;
     },
+    // UI Actions
+    setExamModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isModalOpen = action.payload;
+      if (!action.payload) {
+        state.selectedExam = null;
+        state.modalQuestions = [];
+        state.pendingOpenExamId = null;
+        state.isAddingQuestion = false;
+        state.editingQuestionTempId = null;
+      }
+    },
+    setModalExam: (state, action: PayloadAction<ExamInfo | null>) => {
+      state.selectedExam = action.payload;
+    },
+    setModalQuestions: (state, action: PayloadAction<LocalQuestion[]>) => {
+      state.modalQuestions = action.payload;
+    },
+    setPendingOpenExamId: (state, action: PayloadAction<number | null>) => {
+      state.pendingOpenExamId = action.payload;
+    },
+
+    // ---- Draft Question Actions / Các action quản lý câu hỏi nháp ----
+    addDraftQuestion: (state, action: PayloadAction<LocalQuestion>) => {
+      state.modalQuestions.push(action.payload);
+      state.isAddingQuestion = false;
+    },
+    updateDraftQuestion: (state, action: PayloadAction<LocalQuestion>) => {
+      const idx = state.modalQuestions.findIndex(
+        (q) => q.tempId === action.payload.tempId,
+      );
+      if (idx !== -1) {
+        state.modalQuestions[idx] = action.payload;
+      }
+      state.editingQuestionTempId = null;
+    },
+    deleteDraftQuestion: (state, action: PayloadAction<number>) => {
+      const idx = state.modalQuestions.findIndex(
+        (q) => q.tempId === action.payload,
+      );
+      if (idx !== -1) {
+        const q = state.modalQuestions[idx];
+        if (!q.serverId) {
+          state.modalQuestions.splice(idx, 1);
+        } else {
+          state.modalQuestions[idx]._action = "delete";
+        }
+      }
+    },
+    restoreDraftQuestion: (state, action: PayloadAction<number>) => {
+      const idx = state.modalQuestions.findIndex(
+        (q) => q.tempId === action.payload,
+      );
+      if (idx !== -1) {
+        const q = state.modalQuestions[idx];
+        state.modalQuestions[idx]._action = q.serverId ? "none" : "add";
+      }
+    },
+    setAddingQuestion: (state, action: PayloadAction<boolean>) => {
+      state.isAddingQuestion = action.payload;
+      if (action.payload) state.editingQuestionTempId = null;
+    },
+    setEditingQuestionId: (state, action: PayloadAction<number | null>) => {
+      state.editingQuestionTempId = action.payload;
+      if (action.payload !== null) state.isAddingQuestion = false;
+    },
 
     // Add new question / Thêm câu hỏi mới
     addQuestionRequest: (
@@ -215,6 +294,7 @@ const examSlice = createSlice({
     createExamSuccess: (state, action: PayloadAction<void>) => {
       void action;
       state.loading = false;
+      state.isModalOpen = false;
     },
     createExamFailure: (state, action: PayloadAction<string>) => {
       void action;
@@ -234,6 +314,7 @@ const examSlice = createSlice({
     updateExamSuccess: (state, action: PayloadAction<void>) => {
       void action;
       state.loading = false;
+      state.isModalOpen = false;
     },
     updateExamFailure: (state, action: PayloadAction<string>) => {
       void action;
@@ -380,11 +461,13 @@ const examSlice = createSlice({
         questions: LocalQuestion[];
       }>,
     ) => {
+      void action;
       state.loading = true;
       state.error = null;
     },
     saveExamWithQuestionsSuccess: (state) => {
       state.loading = false;
+      state.isModalOpen = false;
     },
     saveExamWithQuestionsFailure: (state, action: PayloadAction<string>) => {
       void action;
@@ -439,6 +522,16 @@ export const {
   saveExamWithQuestionsRequest,
   saveExamWithQuestionsSuccess,
   saveExamWithQuestionsFailure,
+  setExamModalOpen,
+  setModalExam,
+  setModalQuestions,
+  setPendingOpenExamId,
+  addDraftQuestion,
+  updateDraftQuestion,
+  deleteDraftQuestion,
+  restoreDraftQuestion,
+  setAddingQuestion,
+  setEditingQuestionId,
 } = examSlice.actions;
 
 export default examSlice.reducer;

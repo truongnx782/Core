@@ -24,6 +24,17 @@ import type { ExamInfo, CreateExamRequest } from "../examTypes";
 import QuestionEditor from "../components/QuestionEditor";
 import QuestionCard from "../components/QuestionCard";
 
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../../store";
+import {
+  addDraftQuestion,
+  updateDraftQuestion,
+  deleteDraftQuestion,
+  restoreDraftQuestion,
+  setAddingQuestion,
+  setEditingQuestionId,
+} from "../examSlice";
+
 const { Text, Title } = Typography;
 
 // ─────────────────────────────────────────────
@@ -71,21 +82,24 @@ const DEFAULT_OPTIONS = [
 const ExamFormModal: React.FC<Props> = ({
   open,
   exam,
-  existingQuestions = [],
   isSaving = false,
   onSave,
   onClose,
 }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
   const [examForm] = Form.useForm();
   const [questionForm] = Form.useForm();
   const [activeTab, setActiveTab] = useState("info");
-  const [questions, setQuestions] = useState<LocalQuestion[]>([]);
-  const [editingTempId, setEditingTempId] = useState<number | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
   const [newQuestion, setNewQuestion] = useState<LocalQuestion | null>(null);
   const [correctIndex, setCorrectIndex] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
+
+  const {
+    modalQuestions: questions,
+    isAddingQuestion: isAdding,
+    editingQuestionTempId: editingTempId,
+  } = useSelector((s: RootState) => s.exam);
 
   // ── Reset on open / Khôi phục trạng thái khi mở ──
   useEffect(() => {
@@ -100,21 +114,9 @@ const ExamFormModal: React.FC<Props> = ({
       examForm.resetFields();
     }
 
-    // Defer state updates to next tick to avoid cascading renders warning / Đẩy việc cập nhật state sang tick tiếp theo để tránh lỗi render hàng loạt
-    const timer = setTimeout(() => {
-      setActiveTab("info");
-      setEditingTempId(null);
-      setIsAdding(false);
-      setNewQuestion(null);
-      setIsDirty(false);
-      // Map server questions to local / Chuyển đổi câu hỏi từ server sang chuẩn local
-      setQuestions(
-        existingQuestions.map((q) => ({ ...q, _action: "none" as const })),
-      );
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [open, exam, existingQuestions, examForm]);
+    setActiveTab("info");
+    setIsDirty(false);
+  }, [open, exam, examForm]);
 
   // ── Mark dirty on form change / Đánh dấu form đã thay đổi ──
   const onFormValuesChange = () => {
@@ -136,7 +138,7 @@ const ExamFormModal: React.FC<Props> = ({
   };
 
   // ── Try to save actively editing question / Cố gắng lưu câu hỏi đang chỉnh sửa ──
-  const trySaveActiveQuestion = async (): Promise<LocalQuestion[] | null> => {
+  const trySaveActiveQuestion = async (): Promise<boolean> => {
     if (isAdding && newQuestion) {
       try {
         const values = await questionForm.validateFields();
@@ -149,15 +151,13 @@ const ExamFormModal: React.FC<Props> = ({
           })),
           _action: newQuestion.serverId ? "update" : "add",
         };
-        const updated = [...questions, q];
-        setQuestions(updated);
-        setIsAdding(false);
+        dispatch(addDraftQuestion(q));
         setNewQuestion(null);
         setIsDirty(true);
-        return updated;
+        return true;
       } catch {
         setActiveTab("questions");
-        return null;
+        return false;
       }
     } else if (editingTempId !== null) {
       try {
@@ -172,62 +172,58 @@ const ExamFormModal: React.FC<Props> = ({
           })),
           _action: q.serverId ? "update" : "add",
         };
-        const updated = questions.map((x) =>
-          x.tempId === editingTempId ? updatedQ : x,
-        );
-        setQuestions(updated);
-        setEditingTempId(null);
+        dispatch(updateDraftQuestion(updatedQ));
         setIsDirty(true);
-        return updated;
+        return true;
       } catch {
         setActiveTab("questions");
-        return null;
+        return false;
       }
     }
-    return questions; // no active question being edited
+    return true; // no active question being edited
   };
 
   // ── Save handler / Hàm xử lý lưu ──
   const handleSave = async () => {
-    const updatedQuestions = await trySaveActiveQuestion();
-    if (!updatedQuestions) return; // Validation failed on active question
+    const ok = await trySaveActiveQuestion();
+    if (!ok) return;
 
     const examData = await buildExamPayload();
     if (!examData) {
       setActiveTab("info");
       return;
     }
-    onSave({ examData, questions: updatedQuestions });
+    onSave({ examData, questions });
   };
 
   // ── Auto-save on close if dirty / Tự động lưu khi đóng nếu có thay đổi ──
   const handleClose = async () => {
     if (isDirty || isAdding || editingTempId !== null) {
-      const updatedQuestions = await trySaveActiveQuestion();
-      if (!updatedQuestions) return; // Validation failed on active question, abort close
+      const ok = await trySaveActiveQuestion();
+      if (!ok) return;
 
       const examData = await buildExamPayload();
       if (examData) {
-        onSave({ examData, questions: updatedQuestions });
+        onSave({ examData, questions });
         return;
       } else {
         setActiveTab("info");
-        return; // Validation failed on exam form, abort close
+        return;
       }
     }
     onClose();
   };
 
-  // ── Question CRUD (local) / Xử lý CRUD câu hỏi (local) ──
+  // ── Question CRUD (Redux) / Xử lý CRUD câu hỏi ──
   const startAddQuestion = () => {
-    setIsAdding(true);
-    setEditingTempId(null);
-    setNewQuestion({
+    const q: LocalQuestion = {
       tempId: nextTempId(),
       content: "",
       options: DEFAULT_OPTIONS.map((o) => ({ ...o })),
       _action: "add",
-    });
+    };
+    setNewQuestion(q);
+    dispatch(setAddingQuestion(true));
     setActiveTab("questions");
   };
 
@@ -236,39 +232,23 @@ const ExamFormModal: React.FC<Props> = ({
   };
 
   const cancelNewQuestion = () => {
-    setIsAdding(false);
+    dispatch(setAddingQuestion(false));
     setNewQuestion(null);
   };
 
   const startEditQuestion = (tempId: number) => {
-    setEditingTempId(tempId);
-    setIsAdding(false);
+    dispatch(setEditingQuestionId(tempId));
   };
 
-  const cancelEditQuestion = () => setEditingTempId(null);
+  const cancelEditQuestion = () => dispatch(setEditingQuestionId(null));
 
   const deleteQuestion = (tempId: number) => {
-    setQuestions((prev) =>
-      prev
-        .map((q) => {
-          if (q.tempId !== tempId) return q;
-          // If never persisted, remove entirely; otherwise mark delete / Nếu chưa từng lưu thì xoá luôn, ngược lại thì đánh dấu xoá
-          if (!q.serverId) return null as unknown as LocalQuestion;
-          return { ...q, _action: "delete" as const };
-        })
-        .filter(Boolean),
-    );
+    dispatch(deleteDraftQuestion(tempId));
     setIsDirty(true);
   };
 
   const undeleteQuestion = (tempId: number) => {
-    setQuestions((prev) =>
-      prev.map((q) =>
-        q.tempId === tempId
-          ? { ...q, _action: q.serverId ? "none" : "add" }
-          : q,
-      ),
-    );
+    dispatch(restoreDraftQuestion(tempId));
   };
 
   const visibleQuestions = questions.filter((q) => q._action !== "delete");

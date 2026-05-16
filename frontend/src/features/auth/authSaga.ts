@@ -22,14 +22,9 @@ function* handleLogin(
   yield* apiSaga({
     apiMethod: authService.login,
     actionPayload: action.payload,
+    onSuccess: loginSuccess,
     onFailure: loginFailure,
     errorMessage: i18n.t("common.error"),
-    callback: function* (res: any) {
-      const data = res.data as AuthResponse;
-      yield put(
-        loginSuccess({ accessToken: data.accessToken, user: data.user }),
-      );
-    },
   });
 }
 
@@ -45,14 +40,9 @@ function* handleRegister(
   yield* apiSaga({
     apiMethod: authService.register,
     actionPayload: action.payload,
+    onSuccess: registerSuccess,
     onFailure: registerFailure,
     errorMessage: i18n.t("common.error"),
-    callback: function* (res: any) {
-      const data = res.data as AuthResponse;
-      yield put(
-        registerSuccess({ accessToken: data.accessToken, user: data.user }),
-      );
-    },
   });
 }
 

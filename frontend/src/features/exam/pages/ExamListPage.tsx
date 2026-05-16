@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Card,
   Col,
@@ -28,15 +28,16 @@ import isBetween from "dayjs/plugin/isBetween";
 import { useTranslation } from "react-i18next";
 import type { AppDispatch, RootState } from "../../../store";
 import type { ExamInfo, QuestionInfo } from "../examTypes";
-
-dayjs.extend(isBetween);
-
 import {
   deleteExamRequest,
   fetchAvailableExamsRequest,
   fetchAdminExamsRequest,
   fetchQuestionsRequest,
   saveExamWithQuestionsRequest,
+  setExamModalOpen,
+  setModalExam,
+  setModalQuestions,
+  setPendingOpenExamId,
 } from "../examSlice";
 import { usePagination } from "../../../hooks/usePagination";
 import AppButton from "../../../components/common/AppButton";
@@ -46,9 +47,9 @@ import ExamFormModal, {
   type ExamFormResult,
 } from "./ExamFormModal";
 
+dayjs.extend(isBetween);
 const { Title, Text } = Typography;
 
-/** Map server QuestionInfo → LocalQuestion for the modal / Chuyển đổi thông tin câu hỏi từ server sang chuẩn local cho modal */
 function toLocalQuestions(serverQuestions: QuestionInfo[]): LocalQuestion[] {
   let tempId = -9000;
   return serverQuestions.map((q) => ({
@@ -68,16 +69,18 @@ const ExamListPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedExam, setSelectedExam] = useState<ExamInfo | null>(null);
-  const [modalQuestions, setModalQuestions] = useState<LocalQuestion[]>([]);
-  const [pendingOpenExamId, setPendingOpenExamId] = useState<number | null>(
-    null,
-  );
-
   const { user } = useSelector((s: RootState) => s.auth);
-  const { available, adminList, loading, questions, questionLoading } =
-    useSelector((s: RootState) => s.exam);
+  const {
+    available,
+    adminList,
+    loading,
+    questions,
+    questionLoading,
+    isModalOpen,
+    selectedExam,
+    modalQuestions,
+    pendingOpenExamId,
+  } = useSelector((s: RootState) => s.exam);
   const isAdmin = user?.role === "ADMIN" || user?.role === "MANAGER";
 
   const pagination = usePagination(
@@ -87,36 +90,28 @@ const ExamListPage: React.FC = () => {
 
   useEffect(() => {
     pagination.onPageChange(1, 10);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
-  // ── Open modal / Mở hộp thoại ──
   const handleOpenModal = (exam?: ExamInfo) => {
-    setSelectedExam(exam || null);
-    setModalQuestions([]);
-
+    dispatch(setModalExam(exam || null));
+    dispatch(setModalQuestions([]));
     if (exam) {
-      // Fetch questions for this exam, then open modal when done / Lấy câu hỏi cho bài thi này, sau đó mở hộp thoại
-      setPendingOpenExamId(exam.id);
+      dispatch(setPendingOpenExamId(exam.id));
       dispatch(fetchQuestionsRequest({ examId: exam.id }));
     } else {
-      setPendingOpenExamId(null);
-      setModalOpen(true);
+      dispatch(setPendingOpenExamId(null));
+      dispatch(setExamModalOpen(true));
     }
   };
 
   useEffect(() => {
     if (pendingOpenExamId !== null && !questionLoading) {
-      const timer = setTimeout(() => {
-        setModalQuestions(toLocalQuestions(questions));
-        setPendingOpenExamId(null);
-        setModalOpen(true);
-      }, 0);
-      return () => clearTimeout(timer);
+      dispatch(setModalQuestions(toLocalQuestions(questions)));
+      dispatch(setPendingOpenExamId(null));
+      dispatch(setExamModalOpen(true));
     }
-  }, [questionLoading, pendingOpenExamId, questions]);
+  }, [questionLoading, pendingOpenExamId, questions, dispatch]);
 
-  // ── Save (create or update + questions) / Lưu (tạo mới hoặc cập nhật + câu hỏi) ──
   const handleSave = (result: ExamFormResult) => {
     dispatch(
       saveExamWithQuestionsRequest({
@@ -125,33 +120,13 @@ const ExamListPage: React.FC = () => {
         questions: result.questions,
       }),
     );
-    setModalOpen(false);
   };
-
-  const handleClose = () => {
-    setModalOpen(false);
-    setSelectedExam(null);
-    setModalQuestions([]);
-  };
-
-  const handleDelete = (id: number) => dispatch(deleteExamRequest(id));
 
   const now = dayjs();
-  const getStatusTag = (startTime: string, endTime: string) => {
-    const start = dayjs(startTime);
-    const end = dayjs(endTime);
-    if (now.isBefore(start))
-      return <Tag color="blue">{t("exams.statusUpcoming")}</Tag>;
-    if (now.isAfter(end))
-      return <Tag color="red">{t("exams.statusEnded")}</Tag>;
-    return <Tag color="green">{t("exams.statusOngoing")}</Tag>;
-  };
-
   const data = isAdmin ? adminList : available;
 
   return (
     <div>
-      {/* Loading overlay while fetching questions for edit */}
       {questionLoading && pendingOpenExamId !== null && (
         <div
           style={{
@@ -171,16 +146,16 @@ const ExamListPage: React.FC = () => {
       {isAdmin && (
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
           <Col xs={24} sm={8}>
-            <Card style={{ borderRadius: 12, borderLeft: "4px solid #1677ff" }}>
+            <Card style={{ borderLeft: "4px solid #1677ff" }}>
               <Statistic
                 title={t("exams.totalExams")}
                 value={pagination.totalElements}
-                prefix={<FileTextOutlined style={{ color: "#1677ff" }} />}
+                prefix={<FileTextOutlined />}
               />
             </Card>
           </Col>
           <Col xs={24} sm={8}>
-            <Card style={{ borderRadius: 12, borderLeft: "4px solid #52c41a" }}>
+            <Card style={{ borderLeft: "4px solid #52c41a" }}>
               <Statistic
                 title={t("exams.openExams")}
                 value={
@@ -188,25 +163,23 @@ const ExamListPage: React.FC = () => {
                     now.isBetween(dayjs(e.startTime), dayjs(e.endTime)),
                   ).length
                 }
-                prefix={<ReloadOutlined style={{ color: "#52c41a" }} />}
+                prefix={<ReloadOutlined />}
               />
             </Card>
           </Col>
           <Col xs={24} sm={8}>
-            <Card style={{ borderRadius: 12, borderLeft: "4px solid #faad14" }}>
+            <Card style={{ borderLeft: "4px solid #faad14" }}>
               <Statistic
                 title={t("exams.categories")}
                 value={new Set(data.map((e) => e.category)).size}
-                prefix={<DashboardOutlined style={{ color: "#faad14" }} />}
+                prefix={<DashboardOutlined />}
               />
             </Card>
           </Col>
         </Row>
       )}
 
-      <Card
-        style={{ borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
-      >
+      <Card style={{ borderRadius: 12 }}>
         <Row
           justify="space-between"
           align="middle"
@@ -237,141 +210,118 @@ const ExamListPage: React.FC = () => {
         </Row>
 
         {loading && data.length === 0 ? (
-          <Skeleton active paragraph={{ rows: 6 }} />
+          <Skeleton active />
         ) : (
           <>
             <Row gutter={[20, 20]}>
-              {data.map((exam) => {
-                const start = dayjs(exam.startTime);
-                const end = dayjs(exam.endTime);
-                const isOpen = now.isBetween(start, end);
-
-                return (
-                  <Col xs={24} md={12} lg={8} key={exam.id}>
-                    <Card
+              {data.map((exam) => (
+                <Col xs={24} md={12} lg={8} key={exam.id}>
+                  <Card hoverable styles={{ body: { padding: 20 } }}>
+                    <div
                       style={{
-                        borderRadius: 12,
-                        overflow: "hidden",
-                        border: "1px solid #f0f0f0",
+                        display: "flex",
+                        justifyContent: "space-between",
                       }}
-                      hoverable
-                      styles={{ body: { padding: 20 } }}
                     >
-                      <Space
-                        direction="vertical"
-                        size={12}
-                        style={{ width: "100%" }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          <Text strong style={{ fontSize: 16 }}>
-                            {exam.name}
-                          </Text>
-                          {getStatusTag(exam.startTime, exam.endTime)}
-                        </div>
-
-                        <Text
-                          type="secondary"
-                          style={{
-                            height: 44,
-                            overflow: "hidden",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                          }}
-                        >
-                          {exam.description || t("exams.noDescription")}
-                        </Text>
-
-                        <Divider style={{ margin: "4px 0" }} />
-
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 4,
-                          }}
-                        >
-                          <Space>
-                            <DashboardOutlined style={{ color: "#bfbfbf" }} />{" "}
-                            <Text style={{ fontSize: 12 }}>
-                              {exam.category || t("exams.defaultCategory")}
-                            </Text>
-                          </Space>
-                          <Space>
-                            <ReloadOutlined style={{ color: "#bfbfbf" }} />{" "}
-                            <Text style={{ fontSize: 12 }}>
-                              {exam.durationMinutes} {t("exams.minutes")}
-                            </Text>
-                          </Space>
-                        </div>
-
-                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                          {!isAdmin ? (
-                            <>
-                              <AppButton
-                                variant="primary"
-                                block
-                                disabled={!isOpen}
-                                onClick={() =>
-                                  navigate(`/dashboard/exams/${exam.id}/take`)
-                                }
-                              >
-                                {t("exams.startExam")}
-                              </AppButton>
-                              <AppButton
-                                block
-                                onClick={() =>
-                                  navigate(`/dashboard/exams/${exam.id}/result`)
-                                }
-                              >
-                                {t("exams.viewResults")}
-                              </AppButton>
-                            </>
-                          ) : (
-                            <>
-                              <AppButton
-                                block
-                                icon={<EditOutlined />}
-                                onClick={() => handleOpenModal(exam)}
-                              >
-                                {t("common.edit")}
-                              </AppButton>
-                              <AppButton
-                                block
-                                icon={<BarChartOutlined />}
-                                onClick={() =>
-                                  navigate(
-                                    `/dashboard/exams/${exam.id}/results`,
-                                  )
-                                }
-                              >
-                                {t("exams.viewSubmissions")}
-                              </AppButton>
-                              <Popconfirm
-                                title={t("exams.deleteConfirm")}
-                                onConfirm={() => handleDelete(exam.id)}
-                              >
-                                <AppButton
-                                  variant="danger"
-                                  icon={<DeleteOutlined />}
-                                />
-                              </Popconfirm>
-                            </>
-                          )}
-                        </div>
+                      <Text strong>{exam.name}</Text>
+                      {now.isBefore(dayjs(exam.startTime)) ? (
+                        <Tag color="blue">{t("exams.statusUpcoming")}</Tag>
+                      ) : now.isAfter(dayjs(exam.endTime)) ? (
+                        <Tag color="red">{t("exams.statusEnded")}</Tag>
+                      ) : (
+                        <Tag color="green">{t("exams.statusOngoing")}</Tag>
+                      )}
+                    </div>
+                    <Text
+                      type="secondary"
+                      style={{
+                        height: 44,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        marginTop: 8,
+                      }}
+                    >
+                      {exam.description || t("exams.noDescription")}
+                    </Text>
+                    <Divider style={{ margin: "12px 0" }} />
+                    <div
+                      style={{
+                        fontSize: 12,
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 12,
+                      }}
+                    >
+                      <Space>
+                        <DashboardOutlined />{" "}
+                        {exam.category || t("exams.defaultCategory")}
                       </Space>
-                    </Card>
-                  </Col>
-                );
-              })}
+                      <Space>
+                        <ReloadOutlined /> {exam.durationMinutes}{" "}
+                        {t("exams.minutes")}
+                      </Space>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                      {!isAdmin ? (
+                        <>
+                          <AppButton
+                            variant="primary"
+                            block
+                            disabled={
+                              !now.isBetween(
+                                dayjs(exam.startTime),
+                                dayjs(exam.endTime),
+                              )
+                            }
+                            onClick={() =>
+                              navigate(`/dashboard/exams/${exam.id}/take`)
+                            }
+                          >
+                            {t("exams.startExam")}
+                          </AppButton>
+                          <AppButton
+                            block
+                            onClick={() =>
+                              navigate(`/dashboard/exams/${exam.id}/result`)
+                            }
+                          >
+                            {t("exams.viewResults")}
+                          </AppButton>
+                        </>
+                      ) : (
+                        <>
+                          <AppButton
+                            block
+                            icon={<EditOutlined />}
+                            onClick={() => handleOpenModal(exam)}
+                          />
+                          <AppButton
+                            block
+                            icon={<BarChartOutlined />}
+                            onClick={() =>
+                              navigate(`/dashboard/exams/${exam.id}/results`)
+                            }
+                          />
+                          <Popconfirm
+                            title={t("exams.deleteConfirm")}
+                            onConfirm={() =>
+                              dispatch(deleteExamRequest(exam.id))
+                            }
+                          >
+                            <AppButton
+                              variant="danger"
+                              icon={<DeleteOutlined />}
+                            />
+                          </Popconfirm>
+                        </>
+                      )}
+                    </div>
+                  </Card>
+                </Col>
+              ))}
             </Row>
-
             <div style={{ marginTop: 32, textAlign: "right" }}>
               <Pagination
                 current={pagination.currentPage}
@@ -379,9 +329,6 @@ const ExamListPage: React.FC = () => {
                 total={pagination.totalElements}
                 onChange={pagination.onPageChange}
                 showSizeChanger
-                showTotal={(total) =>
-                  `${t("common.total")} ${total} ${t("exams.examsLabel")}`
-                }
               />
             </div>
           </>
@@ -389,12 +336,12 @@ const ExamListPage: React.FC = () => {
       </Card>
 
       <ExamFormModal
-        open={modalOpen}
+        open={isModalOpen}
         exam={selectedExam}
         existingQuestions={modalQuestions}
         isSaving={loading}
         onSave={handleSave}
-        onClose={handleClose}
+        onClose={() => dispatch(setExamModalOpen(false))}
       />
     </div>
   );

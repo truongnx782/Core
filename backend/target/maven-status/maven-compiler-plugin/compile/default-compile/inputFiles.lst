@@ -2,9 +2,11 @@ C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\common\BaseResp
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\common\ErrorCode.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\common\GlobalExceptionHandler.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\config\AppConfig.java
+C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\config\AuditConfig.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\config\CorsConfig.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\config\SecurityConfig.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\controller\AuthController.java
+C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\controller\BaseController.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\controller\ExamController.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\controller\QuestionController.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\controller\SubmissionController.java
@@ -13,6 +15,9 @@ C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\CoreApplication
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\mapper\ExamMapper.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\mapper\QuestionMapper.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\mapper\UserMapper.java
+C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\request\BaseUserRequest.java
+C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\request\BatchQuestionItem.java
+C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\request\BatchQuestionSyncRequest.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\request\CreateUserRequest.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\request\ExamRequest.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\dto\request\LoginRequest.java
@@ -53,6 +58,7 @@ C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\security\jwt\Jw
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\security\UserDetailsServiceImpl.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\security\UserPrincipal.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\service\AuthService.java
+C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\service\BaseService.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\service\ExamService.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\service\impl\AuthServiceImpl.java
 C:\Users\Chuon\Documents\DEV\Core\backend\src\main\java\com\core\service\impl\ExamServiceImpl.java

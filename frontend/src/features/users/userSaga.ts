@@ -31,14 +31,7 @@ function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
     apiMethod: userService.getUsers,
     actionPayload: action.payload,
     errorMessage: i18n.t("common.error"),
-    callback: function* (pageData: unknown) {
-      const data = pageData as {
-        content: UserInfo[];
-        page: number;
-        size: number;
-        totalElements: number;
-        totalPages: number;
-      };
+    callback: function* (data: any) {
       yield put(
         fetchUsersSuccess({
           users: data.content,

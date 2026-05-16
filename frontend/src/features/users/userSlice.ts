@@ -23,6 +23,8 @@ const initialState: UserState = {
     keyword: "",
     role: "",
   },
+  isModalOpen: false,
+  isEditMode: false,
 };
 
 const userSlice = createSlice({
@@ -69,6 +71,7 @@ const userSlice = createSlice({
     },
     createUserSuccess: (state) => {
       state.loading = false;
+      state.isModalOpen = false;
     },
     createUserFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -87,6 +90,7 @@ const userSlice = createSlice({
     },
     updateUserSuccess: (state) => {
       state.loading = false;
+      state.isModalOpen = false;
     },
     updateUserFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -122,6 +126,13 @@ const userSlice = createSlice({
     clearUserError: (state) => {
       state.error = null;
     },
+    // UI Actions
+    setModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isModalOpen = action.payload;
+    },
+    setEditMode: (state, action: PayloadAction<boolean>) => {
+      state.isEditMode = action.payload;
+    },
   },
 });
 
@@ -142,6 +153,8 @@ export const {
   setRoleFilter,
   setSelectedUser,
   clearUserError,
+  setModalOpen,
+  setEditMode,
 } = userSlice.actions;
 
 export default userSlice.reducer;

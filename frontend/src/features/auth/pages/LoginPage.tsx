@@ -14,10 +14,9 @@ const LoginPage: React.FC = () => {
   const { login, loading, error, isAuthenticated, clearError } = useAuth();
   const [form] = Form.useForm();
   const { t } = useTranslation();
+  const { isMobile } = useResponsive();
 
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
-
-  const { isMobile } = useResponsive();
 
   return (
     <div

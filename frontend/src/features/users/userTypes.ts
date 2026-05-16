@@ -48,6 +48,8 @@ export interface UserState {
     keyword: string;
     role: string;
   };
+  isModalOpen: boolean;
+  isEditMode: boolean;
 }
 
 export type { UserInfo, BaseResponse };

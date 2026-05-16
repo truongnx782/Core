@@ -65,14 +65,7 @@ function* handleFetchAvailable(
     actionPayload: action.payload,
     onFailure: fetchAvailableExamsFailure,
     errorMessage: i18n.t("common.error"),
-    callback: function* (pageData: unknown) {
-      const data = pageData as {
-        content: ExamInfo[];
-        page: number;
-        size: number;
-        totalElements: number;
-        totalPages: number;
-      };
+    callback: function* (data: any) {
       yield put(
         fetchAvailableExamsSuccess({
           exams: data.content,
@@ -94,14 +87,7 @@ function* handleFetchAdminExams(
     actionPayload: action.payload,
     onFailure: fetchAdminExamsFailure,
     errorMessage: i18n.t("common.error"),
-    callback: function* (pageData: unknown) {
-      const data = pageData as {
-        content: ExamInfo[];
-        page: number;
-        size: number;
-        totalElements: number;
-        totalPages: number;
-      };
+    callback: function* (data: any) {
       yield put(
         fetchAdminExamsSuccess({
           exams: data.content,

@@ -5,6 +5,7 @@ import createSagaMiddleware from "redux-saga";
 import authReducer from "../features/auth/authSlice";
 import userReducer from "../features/users/userSlice";
 import examReducer from "../features/exam/examSlice";
+import appReducer from "./appSlice";
 import rootSaga from "./rootSaga";
 
 // Create saga middleware / Khởi tạo middleware cho Redux Saga
@@ -18,6 +19,7 @@ export const store = configureStore({
     auth: authReducer,
     users: userReducer,
     exam: examReducer,
+    app: appReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: false, serializableCheck: false }).concat(
