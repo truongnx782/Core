@@ -1,6 +1,6 @@
-import React from 'react';
-import { Modal } from 'antd';
-import type { ModalProps } from 'antd';
+import React from "react";
+import { Modal } from "antd";
+import type { ModalProps } from "antd";
 
 interface AppModalProps extends ModalProps {
   children: React.ReactNode;
@@ -12,12 +12,7 @@ interface AppModalProps extends ModalProps {
  */
 const AppModal: React.FC<AppModalProps> = ({ children, ...rest }) => {
   return (
-    <Modal
-      centered
-      destroyOnHidden
-      mask={{ closable: false }}
-      {...rest}
-    >
+    <Modal centered destroyOnHidden mask={{ closable: false }} {...rest}>
       {children}
     </Modal>
   );

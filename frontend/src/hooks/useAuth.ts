@@ -1,12 +1,12 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { useCallback } from 'react';
-import type { RootState, AppDispatch } from '../store';
+import { useSelector, useDispatch } from "react-redux";
+import { useCallback } from "react";
+import type { RootState, AppDispatch } from "../store";
 import {
   loginRequest,
   logoutAction,
   clearAuthError,
   registerRequest,
-} from '../features/auth/authSlice';
+} from "../features/auth/authSlice";
 
 /**
  * Custom hook providing auth state and helpers.
@@ -20,19 +20,14 @@ export function useAuth() {
     (email: string, password: string) => {
       dispatch(loginRequest({ email, password }));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const register = useCallback(
-    (
-      username: string,
-      email: string,
-      password: string,
-      fullName?: string
-    ) => {
+    (username: string, email: string, password: string, fullName?: string) => {
       dispatch(registerRequest({ username, email, password, fullName }));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const logout = useCallback(() => {

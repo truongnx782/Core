@@ -99,7 +99,7 @@ const ExamFormModal: React.FC<Props> = ({
     } else {
       examForm.resetFields();
     }
-    
+
     // Defer state updates to next tick to avoid cascading renders warning
     const timer = setTimeout(() => {
       setActiveTab("info");
@@ -112,7 +112,7 @@ const ExamFormModal: React.FC<Props> = ({
         existingQuestions.map((q) => ({ ...q, _action: "none" as const })),
       );
     }, 0);
-    
+
     return () => clearTimeout(timer);
   }, [open, exam, existingQuestions, examForm]);
 

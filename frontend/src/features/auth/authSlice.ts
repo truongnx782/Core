@@ -1,6 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AuthState, UserInfo } from './authTypes';
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { AuthState, UserInfo } from "./authTypes";
 
 const initialState: AuthState = {
   accessToken: null,
@@ -11,16 +11,22 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     // ---- Login ----
-    loginRequest: (state, action: PayloadAction<{ email: string; password: string }>) => {
+    loginRequest: (
+      state,
+      action: PayloadAction<{ email: string; password: string }>,
+    ) => {
       void action;
       state.loading = true;
       state.error = null;
     },
-    loginSuccess: (state, action: PayloadAction<{ accessToken: string; user: UserInfo }>) => {
+    loginSuccess: (
+      state,
+      action: PayloadAction<{ accessToken: string; user: UserInfo }>,
+    ) => {
       state.loading = false;
       state.accessToken = action.payload.accessToken;
       state.user = action.payload.user;
@@ -35,13 +41,21 @@ const authSlice = createSlice({
     // ---- Register ----
     registerRequest: (
       state,
-      action: PayloadAction<{ username: string; email: string; password: string; fullName?: string }>
+      action: PayloadAction<{
+        username: string;
+        email: string;
+        password: string;
+        fullName?: string;
+      }>,
     ) => {
       void action;
       state.loading = true;
       state.error = null;
     },
-    registerSuccess: (state, action: PayloadAction<{ accessToken: string; user: UserInfo }>) => {
+    registerSuccess: (
+      state,
+      action: PayloadAction<{ accessToken: string; user: UserInfo }>,
+    ) => {
       state.loading = false;
       state.accessToken = action.payload.accessToken;
       state.user = action.payload.user;
@@ -54,7 +68,10 @@ const authSlice = createSlice({
     },
 
     // ---- Refresh Token ----
-    refreshTokenSuccess: (state, action: PayloadAction<{ accessToken: string; user: UserInfo }>) => {
+    refreshTokenSuccess: (
+      state,
+      action: PayloadAction<{ accessToken: string; user: UserInfo }>,
+    ) => {
       state.accessToken = action.payload.accessToken;
       state.user = action.payload.user;
       state.isAuthenticated = true;

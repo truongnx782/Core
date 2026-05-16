@@ -1,6 +1,6 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { authService } from './authService';
+import { call, put, takeLatest } from "redux-saga/effects";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { authService } from "./authService";
 import {
   loginRequest,
   loginSuccess,
@@ -9,36 +9,47 @@ import {
   registerSuccess,
   registerFailure,
   logoutAction,
-} from './authSlice';
-import type { AuthResponse } from './authTypes';
+} from "./authSlice";
+import type { AuthResponse } from "./authTypes";
 
-import { apiSaga } from '../../store/sagaHelper';
+import { apiSaga } from "../../store/sagaHelper";
 
 // ---- Login Saga ----
-function* handleLogin(action: PayloadAction<{ email: string; password: string }>) {
+function* handleLogin(
+  action: PayloadAction<{ email: string; password: string }>,
+) {
   yield* apiSaga({
     apiMethod: authService.login,
     actionPayload: action.payload,
     onFailure: loginFailure,
-    errorMessage: 'Login failed',
+    errorMessage: "Login failed",
     callback: function* (data: AuthResponse) {
-      yield put(loginSuccess({ accessToken: data.accessToken, user: data.user }));
-    }
+      yield put(
+        loginSuccess({ accessToken: data.accessToken, user: data.user }),
+      );
+    },
   });
 }
 
 // ---- Register Saga ----
 function* handleRegister(
-  action: PayloadAction<{ username: string; email: string; password: string; fullName?: string }>
+  action: PayloadAction<{
+    username: string;
+    email: string;
+    password: string;
+    fullName?: string;
+  }>,
 ) {
   yield* apiSaga({
     apiMethod: authService.register,
     actionPayload: action.payload,
     onFailure: registerFailure,
-    errorMessage: 'Registration failed',
+    errorMessage: "Registration failed",
     callback: function* (data: AuthResponse) {
-      yield put(registerSuccess({ accessToken: data.accessToken, user: data.user }));
-    }
+      yield put(
+        registerSuccess({ accessToken: data.accessToken, user: data.user }),
+      );
+    },
   });
 }
 

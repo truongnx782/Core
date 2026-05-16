@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import type { RootState, AppDispatch } from '../store';
-import type { UnknownAction } from '@reduxjs/toolkit';
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "../store";
+import type { UnknownAction } from "@reduxjs/toolkit";
 
 interface MutationOptions {
   onSuccess?: () => void;

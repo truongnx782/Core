@@ -1,6 +1,6 @@
-import { put, takeLatest, select } from 'redux-saga/effects';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import { userService } from './userService';
+import { put, takeLatest, select } from "redux-saga/effects";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { userService } from "./userService";
 import {
   fetchUsersRequest,
   fetchUsersSuccess,
@@ -13,20 +13,31 @@ import {
   deleteUserRequest,
   deleteUserSuccess,
   deleteUserFailure,
-} from './userSlice';
-import type { UserFilterParams, CreateUserRequest, UpdateUserRequest, UserInfo } from './userTypes';
-import type { RootState } from '../../store';
+} from "./userSlice";
+import type {
+  UserFilterParams,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserInfo,
+} from "./userTypes";
+import type { RootState } from "../../store";
 
-import { apiSaga } from '../../store/sagaHelper';
+import { apiSaga } from "../../store/sagaHelper";
 
 // ---- Fetch Users ----
 function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
   yield* apiSaga({
     apiMethod: userService.getUsers,
     actionPayload: action.payload,
-    errorMessage: 'Failed to fetch users',
+    errorMessage: "Failed to fetch users",
     callback: function* (pageData: unknown) {
-      const data = pageData as { content: UserInfo[]; page: number; size: number; totalElements: number; totalPages: number };
+      const data = pageData as {
+        content: UserInfo[];
+        page: number;
+        size: number;
+        totalElements: number;
+        totalPages: number;
+      };
       yield put(
         fetchUsersSuccess({
           users: data.content,
@@ -34,9 +45,9 @@ function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
           size: data.size,
           totalElements: data.totalElements,
           totalPages: data.totalPages,
-        })
+        }),
       );
-    }
+    },
   });
 }
 
@@ -50,7 +61,7 @@ function* refetchUsers() {
       role: filters.role,
       page: pagination.page,
       size: pagination.size,
-    })
+    }),
   );
 }
 
@@ -61,21 +72,24 @@ function* handleCreateUser(action: PayloadAction<CreateUserRequest>) {
     actionPayload: action.payload,
     onSuccess: createUserSuccess,
     onFailure: createUserFailure,
-    successMessage: 'User created successfully',
-    errorMessage: 'Failed to create user',
-    callback: refetchUsers
+    successMessage: "User created successfully",
+    errorMessage: "Failed to create user",
+    callback: refetchUsers,
   });
 }
 
 // ---- Update User ----
-function* handleUpdateUser(action: PayloadAction<{ id: number; data: UpdateUserRequest }>) {
+function* handleUpdateUser(
+  action: PayloadAction<{ id: number; data: UpdateUserRequest }>,
+) {
   yield* apiSaga({
-    apiMethod: () => userService.updateUser(action.payload.id, action.payload.data),
+    apiMethod: () =>
+      userService.updateUser(action.payload.id, action.payload.data),
     onSuccess: updateUserSuccess,
     onFailure: updateUserFailure,
-    successMessage: 'User updated successfully',
-    errorMessage: 'Failed to update user',
-    callback: refetchUsers
+    successMessage: "User updated successfully",
+    errorMessage: "Failed to update user",
+    callback: refetchUsers,
   });
 }
 
@@ -85,9 +99,9 @@ function* handleDeleteUser(action: PayloadAction<number>) {
     apiMethod: () => userService.deleteUser(action.payload),
     onSuccess: deleteUserSuccess,
     onFailure: deleteUserFailure,
-    successMessage: 'User deleted successfully',
-    errorMessage: 'Failed to delete user',
-    callback: refetchUsers
+    successMessage: "User deleted successfully",
+    errorMessage: "Failed to delete user",
+    callback: refetchUsers,
   });
 }
 

@@ -1,4 +1,4 @@
-import type { UserInfo, BaseResponse } from '../auth/authTypes';
+import type { UserInfo, BaseResponse } from "../auth/authTypes";
 
 // ---- Request Types ----
 export interface CreateUserRequest {
@@ -28,7 +28,7 @@ export interface UserFilterParams {
 }
 
 // ---- Response Types ----
-import type { PageResponse } from '../../types/common';
+import type { PageResponse } from "../../types/common";
 
 export type { PageResponse };
 

@@ -1,27 +1,31 @@
-import React from 'react';
-import { Button } from 'antd';
-import type { ButtonProps } from 'antd';
+import React from "react";
+import { Button } from "antd";
+import type { ButtonProps } from "antd";
 
-type AppVariant = 'primary' | 'danger' | 'ghost' | 'default';
+type AppVariant = "primary" | "danger" | "ghost" | "default";
 
-interface AppButtonProps extends Omit<ButtonProps, 'variant'> {
+interface AppButtonProps extends Omit<ButtonProps, "variant"> {
   variant?: AppVariant;
 }
 
 const variantMap: Record<AppVariant, Partial<ButtonProps>> = {
-  primary: { type: 'primary' },
-  danger: { type: 'primary', danger: true },
-  ghost: { type: 'default' },
-  default: { type: 'default' },
+  primary: { type: "primary" },
+  danger: { type: "primary", danger: true },
+  ghost: { type: "default" },
+  default: { type: "default" },
 };
 
 /**
  * Styled button component with predefined variant styles.
  * Component nút bấm (button) được định kiểu sẵn (primary, danger, ghost, default).
- * 
+ *
  * @param variant The visual style of the button (AppVariant)
  */
-const AppButton: React.FC<AppButtonProps> = ({ variant = 'default', children, ...rest }) => {
+const AppButton: React.FC<AppButtonProps> = ({
+  variant = "default",
+  children,
+  ...rest
+}) => {
   const variantProps = variantMap[variant];
 
   return (

@@ -1,6 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { UserState, UserInfo, UserFilterParams, CreateUserRequest, UpdateUserRequest } from './userTypes';
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type {
+  UserState,
+  UserInfo,
+  UserFilterParams,
+  CreateUserRequest,
+  UpdateUserRequest,
+} from "./userTypes";
 
 const initialState: UserState = {
   users: [],
@@ -14,13 +20,13 @@ const initialState: UserState = {
     totalPages: 0,
   },
   filters: {
-    keyword: '',
-    role: '',
+    keyword: "",
+    role: "",
   },
 };
 
 const userSlice = createSlice({
-  name: 'users',
+  name: "users",
   initialState,
   reducers: {
     // ---- Fetch Users ----
@@ -37,7 +43,7 @@ const userSlice = createSlice({
         size: number;
         totalElements: number;
         totalPages: number;
-      }>
+      }>,
     ) => {
       state.loading = false;
       state.users = action.payload.users;
@@ -70,7 +76,7 @@ const userSlice = createSlice({
     // ---- Update User ----
     updateUserRequest: (
       state,
-      action: PayloadAction<{ id: number; data: UpdateUserRequest }>
+      action: PayloadAction<{ id: number; data: UpdateUserRequest }>,
     ) => {
       void action;
       state.loading = true;

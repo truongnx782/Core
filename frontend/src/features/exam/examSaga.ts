@@ -1,6 +1,6 @@
-import { put, select, takeLatest, call } from 'redux-saga/effects';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { AxiosResponse } from 'axios';
+import { put, select, takeLatest, call } from "redux-saga/effects";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { AxiosResponse } from "axios";
 import { examService } from "./examService";
 import {
   fetchAvailableExamsRequest,
@@ -61,7 +61,13 @@ function* handleFetchAvailable(
     onFailure: fetchAvailableExamsFailure,
     errorMessage: "Failed to load exams",
     callback: function* (pageData: unknown) {
-      const data = pageData as { content: ExamInfo[]; page: number; size: number; totalElements: number; totalPages: number };
+      const data = pageData as {
+        content: ExamInfo[];
+        page: number;
+        size: number;
+        totalElements: number;
+        totalPages: number;
+      };
       yield put(
         fetchAvailableExamsSuccess({
           exams: data.content,
@@ -84,7 +90,13 @@ function* handleFetchAdminExams(
     onFailure: fetchAdminExamsFailure,
     errorMessage: "Failed to load exams",
     callback: function* (pageData: unknown) {
-      const data = pageData as { content: ExamInfo[]; page: number; size: number; totalElements: number; totalPages: number };
+      const data = pageData as {
+        content: ExamInfo[];
+        page: number;
+        size: number;
+        totalElements: number;
+        totalPages: number;
+      };
       yield put(
         fetchAdminExamsSuccess({
           exams: data.content,
@@ -219,7 +231,11 @@ function* handleSaveExamWithQuestions(
 
     // 1. Create or update the exam record
     if (examId) {
-      const res: AxiosResponse = yield call(examService.updateExam, examId, examData);
+      const res: AxiosResponse = yield call(
+        examService.updateExam,
+        examId,
+        examData,
+      );
       resolvedExamId = res.data?.data?.id ?? examId;
     } else {
       const res: AxiosResponse = yield call(examService.createExam, examData);
@@ -264,7 +280,8 @@ function* handleSaveExamWithQuestions(
     yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
   } catch (err: unknown) {
     const error = err as import("axios").AxiosError<{ message?: string }>;
-    const msg = error.response?.data?.message ?? error.message ?? "Lỗi khi lưu bài thi";
+    const msg =
+      error.response?.data?.message ?? error.message ?? "Lỗi khi lưu bài thi";
     yield put(saveExamWithQuestionsFailure(msg));
     message.error(msg);
   }

@@ -31,7 +31,7 @@ export interface AuthResponse {
   user: UserInfo;
 }
 
-import type { BaseResponse } from '../../types/common';
+import type { BaseResponse } from "../../types/common";
 
 export type { BaseResponse };
 

@@ -1,9 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit';
-import createSagaMiddleware from 'redux-saga';
-import authReducer from '../features/auth/authSlice';
-import userReducer from '../features/users/userSlice';
-import examReducer from '../features/exam/examSlice';
-import rootSaga from './rootSaga';
+import { configureStore } from "@reduxjs/toolkit";
+import createSagaMiddleware from "redux-saga";
+import authReducer from "../features/auth/authSlice";
+import userReducer from "../features/users/userSlice";
+import examReducer from "../features/exam/examSlice";
+import rootSaga from "./rootSaga";
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -14,7 +14,9 @@ export const store = configureStore({
     exam: examReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ thunk: false, serializableCheck: false }).concat(sagaMiddleware),
+    getDefaultMiddleware({ thunk: false, serializableCheck: false }).concat(
+      sagaMiddleware,
+    ),
 });
 
 sagaMiddleware.run(rootSaga);

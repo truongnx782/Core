@@ -1,4 +1,4 @@
-import axiosInstance from '../../services/axiosInstance';
+import axiosInstance from "../../services/axiosInstance";
 import type {
   CreateUserRequest,
   UpdateUserRequest,
@@ -6,13 +6,15 @@ import type {
   PageResponse,
   UserInfo,
   BaseResponse,
-} from './userTypes';
+} from "./userTypes";
 
-const USERS_URL = '/users';
+const USERS_URL = "/users";
 
 export const userService = {
   getUsers: (params: UserFilterParams) =>
-    axiosInstance.get<BaseResponse<PageResponse<UserInfo>>>(USERS_URL, { params }),
+    axiosInstance.get<BaseResponse<PageResponse<UserInfo>>>(USERS_URL, {
+      params,
+    }),
 
   getUserById: (id: number) =>
     axiosInstance.get<BaseResponse<UserInfo>>(`${USERS_URL}/${id}`),
