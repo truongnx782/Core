@@ -9,13 +9,13 @@ import DashboardPage from "../features/dashboard/DashboardPage";
 import UserManagementPage from "../features/users/pages/UserManagementPage";
 import ExamListPage from "../features/exam/pages/ExamListPage";
 import ExamTakingPage from "../features/exam/pages/ExamTakingPage";
+import ExamSubmissionsPage from "../features/exam/pages/ExamSubmissionsPage";
 import ExamResultPage from "../features/exam/pages/ExamResultPage";
 import type { RootState } from "../store";
 
 /**
  * Component to protect routes based on user role / Component bảo vệ các tuyến đường dựa trên vai trò người dùng.
  */
-
 const RequireRole: React.FC<{ roles: string[]; children: React.ReactNode }> = ({
   roles,
   children,
@@ -32,44 +32,43 @@ const RequireRole: React.FC<{ roles: string[]; children: React.ReactNode }> = ({
  * Main application routing configuration / Cấu hình định tuyến chính của ứng dụng.
  */
 const AppRoutes: React.FC = () => {
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
-
   return (
     <Routes>
-      {/* Public Routes / Các tuyến đường công khai */}
+      {/* Public routes / Các tuyến đường công khai */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      {/* Protected Routes / Các tuyến đường yêu cầu xác thực */}
-      <Route element={<PrivateRoute />}>
+      {/* Protected dashboard routes / Các tuyến đường yêu cầu đăng nhập */}
+      <Route path="/dashboard" element={<PrivateRoute />}>
         <Route element={<DashboardLayout />}>
+          <Route index element={<DashboardPage />} />
+
+          {/* User management / Quản lý người dùng - Admin only */}
           <Route
-            path="/dashboard"
-            element={
-              userRole === "STUDENT" ? (
-                <Navigate to="/dashboard/exams" replace />
-              ) : (
-                <DashboardPage />
-              )
-            }
-          />
-          <Route
-            path="/dashboard/users"
+            path="users"
             element={
               <RequireRole roles={["ADMIN", "MANAGER"]}>
                 <UserManagementPage />
               </RequireRole>
             }
           />
-          <Route path="/dashboard/exams" element={<ExamListPage />} />
+
+          {/* Exam routes / Các tuyến đường liên quan đến đề thi */}
+          <Route path="exams" element={<ExamListPage />} />
+
+          {/* View submissions / Xem kết quả học sinh - Admin only */}
           <Route
-            path="/dashboard/exams/:id/take"
-            element={<ExamTakingPage />}
+            path="exams/:id/results"
+            element={
+              <RequireRole roles={["ADMIN", "MANAGER"]}>
+                <ExamSubmissionsPage />
+              </RequireRole>
+            }
           />
-          <Route
-            path="/dashboard/exams/:id/result"
-            element={<ExamResultPage />}
-          />
+
+          <Route path="exams/:id/take" element={<ExamTakingPage />} />
+          <Route path="exams/:id/result" element={<ExamResultPage />} />
         </Route>
       </Route>
 

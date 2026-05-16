@@ -20,6 +20,7 @@ import {
   FileTextOutlined,
   DashboardOutlined,
   EditOutlined,
+  BarChartOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -340,6 +341,17 @@ const ExamListPage: React.FC = () => {
                                 onClick={() => handleOpenModal(exam)}
                               >
                                 {t("common.edit")}
+                              </AppButton>
+                              <AppButton
+                                block
+                                icon={<BarChartOutlined />}
+                                onClick={() =>
+                                  navigate(
+                                    `/dashboard/exams/${exam.id}/results`,
+                                  )
+                                }
+                              >
+                                {t("exams.viewSubmissions")}
                               </AppButton>
                               <Popconfirm
                                 title={t("exams.deleteConfirm")}

@@ -138,6 +138,19 @@
     "restore": "Restore",
     "unsaved": "Unsaved",
     "autoSaveHint": "Closing this modal will auto-save your changes",
-    "loadingQuestions": "Loading questions..."
+    "loadingQuestions": "Loading questions...",
+    "viewSubmissions": "View Submissions",
+    "submissions": "Student Results",
+    "submissionsTitle": "Exam Submissions",
+    "submissionDetail": "Submission Detail",
+    "submittedAt": "Submitted At",
+    "correctCount": "Correct Answers",
+    "score": "Score",
+    "viewDetail": "View Detail",
+    "reviewAnswers": "Review Answers",
+    "correctAnswer": "Correct Answer",
+    "yourAnswer": "Student Answer",
+    "noQuestionsFound": "No questions found",
+    "incorrect": "Incorrect"
   }
 }

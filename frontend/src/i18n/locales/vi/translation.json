@@ -138,6 +138,19 @@
     "restore": "Khôi phục",
     "unsaved": "Chưa lưu",
     "autoSaveHint": "Đóng modal sẽ tự động lưu thay đổi",
-    "loadingQuestions": "Đang tải câu hỏi..."
+    "loadingQuestions": "Đang tải câu hỏi...",
+    "viewSubmissions": "Xem bài làm",
+    "submissions": "Kết quả học sinh",
+    "submissionsTitle": "Danh sách học sinh đã thi",
+    "submissionDetail": "Chi tiết bài thi",
+    "submittedAt": "Thời gian nộp",
+    "correctCount": "Số câu đúng",
+    "score": "Điểm số",
+    "viewDetail": "Xem chi tiết",
+    "reviewAnswers": "Xem lại câu trả lời",
+    "correctAnswer": "Đáp án đúng",
+    "yourAnswer": "Bài làm",
+    "noQuestionsFound": "Không tìm thấy dữ liệu câu hỏi",
+    "incorrect": "Sai"
   }
 }
