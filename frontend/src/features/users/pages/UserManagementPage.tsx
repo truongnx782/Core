@@ -82,6 +82,7 @@ const UserManagementPage: React.FC = () => {
 
   useEffect(() => {
     pagination.onPageChange(1, 10);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, filters.role]);
 
   // Mutation (Create/Update)
@@ -96,7 +97,7 @@ const UserManagementPage: React.FC = () => {
   // Sync search to Redux
   useEffect(() => {
     dispatch(setKeyword(debouncedSearch));
-  }, [debouncedSearch]);
+  }, [debouncedSearch, dispatch]);
 
   // Fill form when editing
   useEffect(() => {
@@ -193,7 +194,7 @@ const UserManagementPage: React.FC = () => {
       key: 'actions',
       width: 120,
       fixed: 'right',
-      render: (_: any, record: UserInfo) => (
+      render: (_: unknown, record: UserInfo) => (
         <Space>
           <Tooltip title={t('common.edit')}>
             <AppButton

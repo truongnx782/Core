@@ -3,21 +3,21 @@ import { message } from 'antd';
 import type { ActionCreatorWithPayload, ActionCreatorWithoutPayload } from '@reduxjs/toolkit';
 import type { AxiosResponse } from 'axios';
 
-interface ApiSagaOptions<TResponse, TActionPayload = any> {
-  apiMethod: (args: any) => Promise<AxiosResponse<any>>;
+interface ApiSagaOptions<TResponse, TActionPayload = unknown> {
+  apiMethod: (args: TActionPayload) => Promise<AxiosResponse<TResponse>>;
   actionPayload?: TActionPayload;
   onSuccess?: ActionCreatorWithPayload<TResponse> | ActionCreatorWithoutPayload;
   onFailure?: ActionCreatorWithPayload<string>;
   successMessage?: string;
   errorMessage?: string;
-  callback?: (data: TResponse) => Generator<any, void, any>;
+  callback?: (data: TResponse) => Generator<unknown, void, unknown>;
 }
 
 /**
  * Common Saga wrapper to handle API calls, success/error dispatching, and toast notifications.
  * Wrapper dùng chung cho các Saga để gọi API, tự động xử lý lỗi và hiển thị thông báo.
  */
-export function* apiSaga<TResponse, TActionPayload = any>({
+export function* apiSaga<TResponse, TActionPayload = unknown>({
   apiMethod,
   actionPayload,
   onSuccess,
@@ -27,11 +27,12 @@ export function* apiSaga<TResponse, TActionPayload = any>({
   callback,
 }: ApiSagaOptions<TResponse, TActionPayload>) {
   try {
-    const response: AxiosResponse = yield call(apiMethod, actionPayload);
-    const data = response.data?.data || response.data;
+    const response: AxiosResponse<TResponse> = yield call(apiMethod, actionPayload as TActionPayload);
+    const responseData = response.data as Record<string, unknown>;
+    const data = (responseData?.data !== undefined ? responseData.data : responseData) as TResponse;
 
     if (onSuccess) {
-      yield put((onSuccess as ActionCreatorWithPayload<any>)(data));
+      yield put((onSuccess as ActionCreatorWithPayload<TResponse>)(data as TResponse));
     }
 
     if (successMessage) {
@@ -39,10 +40,11 @@ export function* apiSaga<TResponse, TActionPayload = any>({
     }
 
     if (callback) {
-      yield* callback(data);
+      yield* callback(data as TResponse);
     }
-  } catch (error: any) {
-    const msg = error.response?.data?.message || errorMessage || 'An unexpected error occurred';
+  } catch (error: unknown) {
+    const err = error as import('axios').AxiosError<{ message?: string }>;
+    const msg = err.response?.data?.message || err.message || errorMessage || 'An unexpected error occurred';
     
     if (onFailure) {
       yield put(onFailure(msg));

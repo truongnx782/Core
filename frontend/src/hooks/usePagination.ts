@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useCallback } from 'react';
+import type { UnknownAction } from '@reduxjs/toolkit';
 import type { RootState, AppDispatch } from '../store';
 
 interface PaginationState {
@@ -18,8 +19,8 @@ interface PaginationState {
  */
 export function usePagination<T extends PaginationState>(
   selector: (state: RootState) => T,
-  actionCreator: (params: any) => any,
-  extraParams: Record<string, any> = {}
+  actionCreator: (params: Record<string, unknown>) => UnknownAction,
+  extraParams: Record<string, unknown> = {}
 ) {
   const dispatch = useDispatch<AppDispatch>();
   const pagination = useSelector(selector);

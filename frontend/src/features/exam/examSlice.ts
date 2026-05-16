@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type {
@@ -53,7 +54,8 @@ const examSlice = createSlice({
   initialState,
   reducers: {
     // ---- Student list ----
-    fetchAvailableExamsRequest: (state, _action: PayloadAction<{ page: number; size: number }>) => {
+    fetchAvailableExamsRequest: (state, action: PayloadAction<{ page: number; size: number }>) => {
+      void action;
       state.loading = true;
       state.error = null;
     },
@@ -71,11 +73,13 @@ const examSlice = createSlice({
       };
     },
     fetchAvailableExamsFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
 
-    fetchAdminExamsRequest: (state, _action: PayloadAction<{ page: number; size: number }>) => {
+    fetchAdminExamsRequest: (state, action: PayloadAction<{ page: number; size: number }>) => {
+      void action;
       state.loading = true;
       state.error = null;
     },
@@ -93,25 +97,30 @@ const examSlice = createSlice({
       };
     },
     fetchAdminExamsFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
 
-    fetchQuestionsRequest: (state, _action: PayloadAction<{ examId: number }>) => {
+    fetchQuestionsRequest: (state, action: PayloadAction<{ examId: number }>) => {
+      void action;
       // Bắt đầu tải câu hỏi của đề thi
       state.questionLoading = true;
       state.questionError = null;
     },
     fetchQuestionsSuccess: (state, action: PayloadAction<QuestionInfo[]>) => {
+      void action;
       state.questionLoading = false;
       state.questions = action.payload;
     },
     fetchQuestionsFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.questionLoading = false;
       state.questionError = action.payload;
     },
 
-    addQuestionRequest: (state, _action: PayloadAction<{ examId: number; data: CreateQuestionRequest }>) => {
+    addQuestionRequest: (state, action: PayloadAction<{ examId: number; data: CreateQuestionRequest }>) => {
+      void action;
       state.questionLoading = true;
       state.questionError = null;
     },
@@ -119,11 +128,13 @@ const examSlice = createSlice({
       state.questionLoading = false;
     },
     addQuestionFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.questionLoading = false;
       state.questionError = action.payload;
     },
 
-    updateQuestionRequest: (state, _action: PayloadAction<{ questionId: number; examId: number; data: CreateQuestionRequest }>) => {
+    updateQuestionRequest: (state, action: PayloadAction<{ questionId: number; examId: number; data: CreateQuestionRequest }>) => {
+      void action;
       state.questionLoading = true;
       state.questionError = null;
     },
@@ -131,11 +142,13 @@ const examSlice = createSlice({
       state.questionLoading = false;
     },
     updateQuestionFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.questionLoading = false;
       state.questionError = action.payload;
     },
 
-    deleteQuestionRequest: (state, _action: PayloadAction<{ questionId: number; examId: number }>) => {
+    deleteQuestionRequest: (state, action: PayloadAction<{ questionId: number; examId: number }>) => {
+      void action;
       state.questionLoading = true;
       state.questionError = null;
     },
@@ -143,50 +156,61 @@ const examSlice = createSlice({
       state.questionLoading = false;
     },
     deleteQuestionFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.questionLoading = false;
       state.questionError = action.payload;
     },
 
-    createExamRequest: (state, _action: PayloadAction<{ data: CreateExamRequest }>) => {
+    createExamRequest: (state, action: PayloadAction<{ data: CreateExamRequest }>) => {
+      void action;
       // Bắt đầu tạo đề thi mới
       state.loading = true;
       state.error = null;
     },
-    createExamSuccess: (state, _action: PayloadAction<void>) => {
+    createExamSuccess: (state, action: PayloadAction<void>) => {
+      void action;
       state.loading = false;
     },
     createExamFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
 
-    updateExamRequest: (state, _action: PayloadAction<{ id: number; data: CreateExamRequest }>) => {
+    updateExamRequest: (state, action: PayloadAction<{ id: number; data: CreateExamRequest }>) => {
+      void action;
       // Bắt đầu cập nhật đề thi
       state.loading = true;
       state.error = null;
     },
-    updateExamSuccess: (state, _action: PayloadAction<void>) => {
+    updateExamSuccess: (state, action: PayloadAction<void>) => {
+      void action;
       state.loading = false;
     },
     updateExamFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
 
-    deleteExamRequest: (state, _action: PayloadAction<number>) => {
+    deleteExamRequest: (state, action: PayloadAction<number>) => {
+      void action;
       state.loading = true;
       state.error = null;
     },
-    deleteExamSuccess: (state, _action: PayloadAction<void>) => {
+    deleteExamSuccess: (state, action: PayloadAction<void>) => {
+      void action;
       state.loading = false;
     },
     deleteExamFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
 
     // ---- Start taking ----
-    startExamRequest: (state, _action: PayloadAction<{ examId: number }>) => {
+    startExamRequest: (state, action: PayloadAction<{ examId: number }>) => {
+      void action;
       state.loading = true;
       state.error = null;
       state.taking = null;
@@ -195,6 +219,7 @@ const examSlice = createSlice({
       state.submitError = null;
     },
     startExamSuccess: (state, action: PayloadAction<StartExamResponse>) => {
+      void action;
       state.loading = false;
       state.taking = action.payload;
       // initialize answers map with previous answers if available
@@ -205,53 +230,64 @@ const examSlice = createSlice({
       state.answersByQuestionId = map;
     },
     startExamFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
 
     setAnswer: (state, action: PayloadAction<{ questionId: number; optionId: number | null }>) => {
+      void action;
       state.answersByQuestionId[action.payload.questionId] = action.payload.optionId;
     },
 
     // ---- Submit ----
-    submitExamRequest: (state, _action: PayloadAction<{ examId: number }>) => {
+    submitExamRequest: (state, action: PayloadAction<{ examId: number }>) => {
+      void action;
       state.submitting = true;
       state.submitError = null;
     },
     submitExamSuccess: (state, action: PayloadAction<StudentSubmissionResult>) => {
+      void action;
       state.submitting = false;
       state.latestResult = action.payload;
     },
     submitExamFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.submitting = false;
       state.submitError = action.payload;
     },
 
     // ---- Result ----
-    fetchLatestResultRequest: (state, _action: PayloadAction<{ examId: number }>) => {
+    fetchLatestResultRequest: (state, action: PayloadAction<{ examId: number }>) => {
+      void action;
       state.loading = true;
       state.error = null;
       state.latestResult = null;
     },
     fetchLatestResultSuccess: (state, action: PayloadAction<StudentSubmissionResult>) => {
+      void action;
       state.loading = false;
       state.latestResult = action.payload;
     },
     fetchLatestResultFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
 
-    fetchExamSubmissionsRequest: (state, _action: PayloadAction<{ examId: number }>) => {
+    fetchExamSubmissionsRequest: (state, action: PayloadAction<{ examId: number }>) => {
+      void action;
       state.loading = true;
       state.error = null;
       state.examSubmissions = [];
     },
     fetchExamSubmissionsSuccess: (state, action: PayloadAction<StudentSubmissionResult[]>) => {
+      void action;
       state.loading = false;
       state.examSubmissions = action.payload;
     },
     fetchExamSubmissionsFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },
@@ -268,7 +304,7 @@ const examSlice = createSlice({
     // ---- Batch save exam + questions ----
     saveExamWithQuestionsRequest: (
       state,
-      _action: PayloadAction<{
+      action: PayloadAction<{
         examId?: number;
         examData: CreateExamRequest;
         questions: LocalQuestion[];
@@ -281,6 +317,7 @@ const examSlice = createSlice({
       state.loading = false;
     },
     saveExamWithQuestionsFailure: (state, action: PayloadAction<string>) => {
+      void action;
       state.loading = false;
       state.error = action.payload;
     },

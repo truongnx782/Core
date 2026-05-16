@@ -14,7 +14,7 @@ import {
   deleteUserSuccess,
   deleteUserFailure,
 } from './userSlice';
-import type { UserFilterParams, CreateUserRequest, UpdateUserRequest } from './userTypes';
+import type { UserFilterParams, CreateUserRequest, UpdateUserRequest, UserInfo } from './userTypes';
 import type { RootState } from '../../store';
 
 import { apiSaga } from '../../store/sagaHelper';
@@ -25,14 +25,15 @@ function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
     apiMethod: userService.getUsers,
     actionPayload: action.payload,
     errorMessage: 'Failed to fetch users',
-    callback: function* (pageData: any) {
+    callback: function* (pageData: unknown) {
+      const data = pageData as { content: UserInfo[]; page: number; size: number; totalElements: number; totalPages: number };
       yield put(
         fetchUsersSuccess({
-          users: pageData.content,
-          page: pageData.page,
-          size: pageData.size,
-          totalElements: pageData.totalElements,
-          totalPages: pageData.totalPages,
+          users: data.content,
+          page: data.page,
+          size: data.size,
+          totalElements: data.totalElements,
+          totalPages: data.totalPages,
         })
       );
     }

@@ -24,7 +24,8 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     // ---- Fetch Users ----
-    fetchUsersRequest: (state, _action: PayloadAction<UserFilterParams>) => {
+    fetchUsersRequest: (state, action: PayloadAction<UserFilterParams>) => {
+      void action;
       state.loading = true;
       state.error = null;
     },
@@ -53,7 +54,8 @@ const userSlice = createSlice({
     },
 
     // ---- Create User ----
-    createUserRequest: (state, _action: PayloadAction<CreateUserRequest>) => {
+    createUserRequest: (state, action: PayloadAction<CreateUserRequest>) => {
+      void action;
       state.loading = true;
       state.error = null;
     },
@@ -68,8 +70,9 @@ const userSlice = createSlice({
     // ---- Update User ----
     updateUserRequest: (
       state,
-      _action: PayloadAction<{ id: number; data: UpdateUserRequest }>
+      action: PayloadAction<{ id: number; data: UpdateUserRequest }>
     ) => {
+      void action;
       state.loading = true;
       state.error = null;
     },
@@ -82,7 +85,8 @@ const userSlice = createSlice({
     },
 
     // ---- Delete User ----
-    deleteUserRequest: (state, _action: PayloadAction<number>) => {
+    deleteUserRequest: (state, action: PayloadAction<number>) => {
+      void action;
       state.loading = true;
       state.error = null;
     },

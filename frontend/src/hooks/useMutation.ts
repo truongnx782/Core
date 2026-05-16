@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
+import type { UnknownAction } from '@reduxjs/toolkit';
 
 interface MutationOptions {
   onSuccess?: () => void;
@@ -16,7 +17,7 @@ export function useMutation({ onSuccess, selector }: MutationOptions) {
   const { loading, error } = useSelector(selector);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const mutate = (action: any) => {
+  const mutate = (action: UnknownAction) => {
     setIsSubmitting(true);
     dispatch(action);
   };
@@ -26,7 +27,8 @@ export function useMutation({ onSuccess, selector }: MutationOptions) {
       if (!error) {
         onSuccess?.();
       }
-      setIsSubmitting(false);
+      const timer = setTimeout(() => setIsSubmitting(false), 0);
+      return () => clearTimeout(timer);
     }
   }, [loading, error, isSubmitting, onSuccess]);
 
