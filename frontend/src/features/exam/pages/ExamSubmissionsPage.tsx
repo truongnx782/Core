@@ -22,7 +22,7 @@ import dayjs from "dayjs";
 import AppButton from "../../../components/common/AppButton";
 import { examService } from "../examService";
 import type { StudentSubmissionResult } from "../examTypes";
-import SubmissionDetailModal from "../components/SubmissionDetailModal";
+import { SubmissionDetailModal } from "../components/SubmissionDetailModal";
 
 const { Title, Text } = Typography;
 

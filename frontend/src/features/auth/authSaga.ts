@@ -13,6 +13,7 @@ import {
 import type { AuthResponse } from "./authTypes";
 
 import { apiSaga } from "../../store/sagaHelper";
+import i18n from "../../i18n/i18n";
 
 // ---- Login Saga / Xử lý đăng nhập ----
 function* handleLogin(
@@ -22,7 +23,7 @@ function* handleLogin(
     apiMethod: authService.login,
     actionPayload: action.payload,
     onFailure: loginFailure,
-    errorMessage: "Login failed",
+    errorMessage: i18n.t("common.error"),
     callback: function* (data: AuthResponse) {
       yield put(
         loginSuccess({ accessToken: data.accessToken, user: data.user }),
@@ -44,7 +45,7 @@ function* handleRegister(
     apiMethod: authService.register,
     actionPayload: action.payload,
     onFailure: registerFailure,
-    errorMessage: "Registration failed",
+    errorMessage: i18n.t("common.error"),
     callback: function* (data: AuthResponse) {
       yield put(
         registerSuccess({ accessToken: data.accessToken, user: data.user }),

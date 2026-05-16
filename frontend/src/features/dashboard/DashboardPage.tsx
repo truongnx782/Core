@@ -119,21 +119,28 @@ const DashboardPage: React.FC = () => {
             {
               color: "green",
               dot: <CheckCircleOutlined />,
-              children: "New user registered: john.doe@example.com",
+              children: t("dashboard.newRegistration", {
+                email: "john.doe@example.com",
+              }),
             },
             {
               color: "blue",
               dot: <ClockCircleOutlined />,
-              children: "User role updated: manager@core.com → ADMIN",
+              children: t("dashboard.roleUpdated", {
+                email: "manager@core.com",
+                role: "ADMIN",
+              }),
             },
             {
               color: "red",
-              children: "User deactivated: inactive@example.com",
+              children: t("dashboard.userDeactivated", {
+                email: "inactive@example.com",
+              }),
             },
             {
               color: "green",
               dot: <CheckCircleOutlined />,
-              children: "System backup completed successfully",
+              children: t("dashboard.backupSuccess"),
             },
           ]}
         />

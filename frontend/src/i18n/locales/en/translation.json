@@ -37,7 +37,10 @@
     "success": "Success",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "appName": "CoreAdmin",
+    "allRoles": "All Roles",
+    "systemError": "System error, please try again later"
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -151,6 +154,23 @@
     "correctAnswer": "Correct Answer",
     "yourAnswer": "Student Answer",
     "noQuestionsFound": "No questions found",
-    "incorrect": "Incorrect"
+    "incorrect": "Incorrect",
+    "takeExamFocus": "Taking Exam (Focus mode)",
+    "autoSubmitWarning": "When time runs out or the exam closes, the system will automatically submit your work.",
+    "remainingTime": "Time Remaining",
+    "backToList": "Back to Exams",
+    "results": "Results",
+    "noSubmissions": "No submissions for this exam yet.",
+    "noResults": "No results for this exam yet.",
+    "continueExam": "Continue Exam",
+    "reviewFast": "Quick Review",
+    "submittedAtLabel": "Submitted at: {{date}}",
+    "durationLabel": "Duration: {{min}} min"
+  },
+  "dashboard": {
+    "newRegistration": "New user registered: {{email}}",
+    "roleUpdated": "User role updated: {{email}} → {{role}}",
+    "userDeactivated": "User deactivated: {{email}}",
+    "backupSuccess": "System backup completed successfully"
   }
 }

@@ -12,6 +12,7 @@ import {
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 import type { AppDispatch, RootState } from "../../../store";
 import {
   clearExamState,
@@ -30,6 +31,7 @@ function formatRemaining(seconds: number) {
 }
 
 const ExamTakingPage: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -138,19 +140,16 @@ const ExamTakingPage: React.FC = () => {
           <Card style={{ borderRadius: 12 }}>
             <Space direction="vertical" size={12} style={{ width: "100%" }}>
               <Title level={4} style={{ margin: 0 }}>
-                Làm bài (Focus mode)
+                {t("exams.takeExamFocus")}
               </Title>
-              <Text type="secondary">
-                Khi hết thời gian hoặc đến giờ đóng đề, hệ thống sẽ tự động nộp
-                bài.
-              </Text>
+              <Text type="secondary">{t("exams.autoSubmitWarning")}</Text>
               <Divider style={{ margin: "12px 0" }} />
 
               {taking.questions.map((q, idx) => (
                 <Card key={q.id} style={{ borderRadius: 12 }} size="small">
                   <Space direction="vertical" style={{ width: "100%" }}>
                     <Text strong>
-                      Câu {idx + 1}: {q.content}
+                      {t("exams.questionNo", { no: idx + 1 })}: {q.content}
                     </Text>
                     <Radio.Group
                       value={answersByQuestionId[q.id] ?? null}
@@ -182,7 +181,7 @@ const ExamTakingPage: React.FC = () => {
           <Card style={{ borderRadius: 12, position: "sticky", top: 16 }}>
             <Space direction="vertical" style={{ width: "100%" }} size={12}>
               <Title level={5} style={{ margin: 0 }}>
-                Thời gian còn lại
+                {t("exams.remainingTime")}
               </Title>
               <div style={{ fontSize: 32, fontWeight: 800 }}>
                 {formatRemaining(remainingSec)}
@@ -198,10 +197,10 @@ const ExamTakingPage: React.FC = () => {
                   dispatch(submitExamRequest({ examId }));
                 }}
               >
-                Nộp bài
+                {t("common.submit")}
               </Button>
               <Button onClick={() => navigate("/dashboard/exams")}>
-                Quay lại
+                {t("common.cancel")}
               </Button>
             </Space>
           </Card>

@@ -120,7 +120,7 @@ const Sidebar: React.FC = () => {
               letterSpacing: "-0.5px",
             }}
           >
-            CoreAdmin
+            {t("common.appName")}
           </span>
         )}
       </div>

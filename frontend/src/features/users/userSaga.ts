@@ -23,13 +23,14 @@ import type {
 import type { RootState } from "../../store";
 
 import { apiSaga } from "../../store/sagaHelper";
+import i18n from "../../i18n/i18n";
 
 // ---- Fetch Users / Lấy danh sách người dùng ----
 function* handleFetchUsers(action: PayloadAction<UserFilterParams>) {
   yield* apiSaga({
     apiMethod: userService.getUsers,
     actionPayload: action.payload,
-    errorMessage: "Failed to fetch users",
+    errorMessage: i18n.t("common.error"),
     callback: function* (pageData: unknown) {
       const data = pageData as {
         content: UserInfo[];
@@ -72,8 +73,8 @@ function* handleCreateUser(action: PayloadAction<CreateUserRequest>) {
     actionPayload: action.payload,
     onSuccess: createUserSuccess,
     onFailure: createUserFailure,
-    successMessage: "User created successfully",
-    errorMessage: "Failed to create user",
+    successMessage: i18n.t("common.success"),
+    errorMessage: i18n.t("common.error"),
     callback: refetchUsers,
   });
 }
@@ -87,8 +88,8 @@ function* handleUpdateUser(
       userService.updateUser(action.payload.id, action.payload.data),
     onSuccess: updateUserSuccess,
     onFailure: updateUserFailure,
-    successMessage: "User updated successfully",
-    errorMessage: "Failed to update user",
+    successMessage: i18n.t("common.success"),
+    errorMessage: i18n.t("common.error"),
     callback: refetchUsers,
   });
 }
@@ -99,8 +100,8 @@ function* handleDeleteUser(action: PayloadAction<number>) {
     apiMethod: () => userService.deleteUser(action.payload),
     onSuccess: deleteUserSuccess,
     onFailure: deleteUserFailure,
-    successMessage: "User deleted successfully",
-    errorMessage: "Failed to delete user",
+    successMessage: i18n.t("common.success"),
+    errorMessage: i18n.t("common.error"),
     callback: refetchUsers,
   });
 }

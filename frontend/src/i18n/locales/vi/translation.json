@@ -37,7 +37,10 @@
     "success": "Thành công",
     "confirm": "Xác nhận",
     "yes": "Có",
-    "no": "Không"
+    "no": "Không",
+    "appName": "CoreAdmin",
+    "allRoles": "Tất cả vai trò",
+    "systemError": "Lỗi hệ thống, vui lòng thử lại sau"
   },
   "auth": {
     "loginTitle": "Chào mừng trở lại",
@@ -151,6 +154,23 @@
     "correctAnswer": "Đáp án đúng",
     "yourAnswer": "Bài làm",
     "noQuestionsFound": "Không tìm thấy dữ liệu câu hỏi",
-    "incorrect": "Sai"
+    "incorrect": "Sai",
+    "takeExamFocus": "Làm bài (Focus mode)",
+    "autoSubmitWarning": "Khi hết thời gian hoặc đến giờ đóng đề, hệ thống sẽ tự động nộp bài.",
+    "remainingTime": "Thời gian còn lại",
+    "backToList": "Danh sách đề",
+    "results": "Kết quả",
+    "noSubmissions": "Chưa có nộp bài cho đề này.",
+    "noResults": "Chưa có kết quả cho đề này.",
+    "continueExam": "Tiếp tục làm bài",
+    "reviewFast": "Review nhanh",
+    "submittedAtLabel": "Nộp lúc: {{date}}",
+    "durationLabel": "Thời gian làm: {{min}} phút"
+  },
+  "dashboard": {
+    "newRegistration": "Người dùng mới đăng ký: {{email}}",
+    "roleUpdated": "Vai trò người dùng đã được cập nhật: {{email}} → {{role}}",
+    "userDeactivated": "Người dùng đã bị ngừng hoạt động: {{email}}",
+    "backupSuccess": "Sao lưu hệ thống thành công"
   }
 }

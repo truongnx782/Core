@@ -55,6 +55,7 @@ import type {
 import type { LocalQuestion } from "./pages/ExamFormModal";
 import { apiSaga } from "../../store/sagaHelper";
 import { message } from "antd";
+import i18n from "../../i18n/i18n";
 
 function* handleFetchAvailable(
   action: PayloadAction<{ page: number; size: number }>,
@@ -63,7 +64,7 @@ function* handleFetchAvailable(
     apiMethod: examService.getAvailableExams,
     actionPayload: action.payload,
     onFailure: fetchAvailableExamsFailure,
-    errorMessage: "Failed to load exams",
+    errorMessage: i18n.t("common.error"),
     callback: function* (pageData: unknown) {
       const data = pageData as {
         content: ExamInfo[];
@@ -92,7 +93,7 @@ function* handleFetchAdminExams(
     apiMethod: examService.searchExams,
     actionPayload: action.payload,
     onFailure: fetchAdminExamsFailure,
-    errorMessage: "Failed to load exams",
+    errorMessage: i18n.t("common.error"),
     callback: function* (pageData: unknown) {
       const data = pageData as {
         content: ExamInfo[];
@@ -132,8 +133,8 @@ function* handleAddQuestion(
       examService.addQuestion(action.payload.examId, action.payload.data),
     onSuccess: addQuestionSuccess,
     onFailure: addQuestionFailure,
-    successMessage: "Question added successfully",
-    errorMessage: "Failed to add question",
+    successMessage: i18n.t("common.success"),
+    errorMessage: i18n.t("common.error"),
     callback: function* () {
       yield put(fetchQuestionsRequest({ examId: action.payload.examId }));
     },
@@ -184,8 +185,8 @@ function* handleCreateExam(action: PayloadAction<{ data: CreateExamRequest }>) {
     actionPayload: action.payload.data,
     onSuccess: createExamSuccess,
     onFailure: createExamFailure,
-    successMessage: "Created new exam successfully",
-    errorMessage: "Failed to create exam",
+    successMessage: i18n.t("common.success"),
+    errorMessage: i18n.t("common.error"),
     callback: function* () {
       yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
     },
@@ -278,14 +279,16 @@ function* handleSaveExamWithQuestions(
 
     yield put(saveExamWithQuestionsSuccess());
     message.success(
-      examId ? "Cập nhật bài thi thành công" : "Tạo bài thi thành công",
+      examId ? i18n.t("exams.updateExam") : i18n.t("exams.createExam"),
     );
     // Refresh the list / Làm mới danh sách quản trị
     yield put(fetchAdminExamsRequest({ page: 0, size: 20 }));
   } catch (err: unknown) {
     const error = err as import("axios").AxiosError<{ message?: string }>;
     const msg =
-      error.response?.data?.message ?? error.message ?? "Lỗi khi lưu bài thi";
+      error.response?.data?.message ??
+      error.message ??
+      i18n.t("common.systemError");
     yield put(saveExamWithQuestionsFailure(msg));
     message.error(msg);
   }

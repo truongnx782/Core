@@ -44,6 +44,7 @@ import InputField from "../../../components/common/InputField";
 import type { ColumnsType } from "antd/es/table";
 import type { UserInfo } from "../../auth/authTypes";
 import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -185,8 +186,7 @@ const UserManagementPage: React.FC = () => {
       dataIndex: "createdAt",
       key: "createdAt",
       width: 160,
-      render: (date: string) =>
-        date ? new Date(date).toLocaleDateString("vi-VN") : "—",
+      render: (date: string) => (date ? dayjs(date).format("DD/MM/YYYY") : "—"),
     },
     {
       title: t("common.actions"),
